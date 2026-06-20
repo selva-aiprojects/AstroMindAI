@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: astra-backend
+  labels:
+    app: astra-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: astra-backend
+  template:
+    metadata:
+      labels:
+        app: astra-backend
+    spec:
+      containers:
+      - name: astra-backend
+        image: astra/backend:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: astra-config
+              key: database-url
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: astra-secrets
+              key: database-username
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: astra-secrets
+              key: database-password
+        - name: CHROMA_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: astra-config
+              key: chroma-host
+        - name: CHROMA_DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: astra-config
+              key: chroma-port
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: astra-backend-service
+spec:
+  selector:
+    app: astra-backend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
