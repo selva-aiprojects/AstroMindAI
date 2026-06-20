@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthProvider with ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth? _auth;
 
   User? _user;
   bool _isLoading = false;
@@ -15,12 +15,18 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _user != null;
   String? get errorMessage => _errorMessage;
 
-  AuthProvider() {
+  AuthProvider({bool firebaseEnabled = false})
+    : _auth = firebaseEnabled ? FirebaseAuth.instance : null {
     _checkAuthStatus();
   }
 
   void _checkAuthStatus() {
-    _auth.authStateChanges().listen((User? user) {
+    final auth = _auth;
+    if (auth == null) {
+      return;
+    }
+
+    auth.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
     });
@@ -31,24 +37,34 @@ class AuthProvider with ChangeNotifier {
     _clearError();
 
     try {
+      final auth = _auth;
+      if (auth == null) {
+        _setError('Firebase is not configured for this app yet.');
+        _setLoading(false);
+        return false;
+      }
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         _setLoading(false);
         return false;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await auth.signInWithCredential(
+        credential,
+      );
       _user = userCredential.user;
-      
+
       // In production, call backend API to exchange for JWT token
       await _exchangeTokenWithBackend(userCredential.user!.uid, 'google');
-      
+
       _setLoading(false);
       return true;
     } catch (e) {
@@ -66,7 +82,7 @@ class AuthProvider with ChangeNotifier {
       // In production, integrate with Firebase Phone Auth
       // For now, this is a placeholder
       await Future.delayed(const Duration(seconds: 2));
-      
+
       // Simulate successful phone auth
       _setLoading(false);
       return true;
@@ -94,15 +110,18 @@ class AuthProvider with ChangeNotifier {
   Future<void> _exchangeTokenWithBackend(String userId, String provider) async {
     // In production, call backend API to exchange Firebase token for JWT
     // POST /api/v1/auth/google or /api/v1/auth/phone/verify-otp
-    debugPrint('Exchanging token with backend for user: $userId, provider: $provider');
+    debugPrint(
+      'Exchanging token with backend for user: $userId, provider: $provider',
+    );
   }
 
   Future<void> signOut() async {
     _setLoading(true);
     try {
+      final auth = _auth;
       await Future.wait([
         _googleSignIn.signOut(),
-        _auth.signOut(),
+        if (auth != null) auth.signOut(),
       ]);
       _user = null;
       _setLoading(false);

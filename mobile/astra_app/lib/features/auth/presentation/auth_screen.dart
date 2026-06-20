@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/providers/auth_provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -11,204 +12,61 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  static const _ink = Color(0xFF17151F);
+  static const _muted = Color(0xFF6F6A7A);
+  static const _surface = Color(0xFFF8F6F1);
+  static const _panel = Color(0xFFFFFFFF);
+  static const _teal = Color(0xFF087E8B);
+  static const _amber = Color(0xFFE0A640);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.secondary,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildLogo(),
-                  const SizedBox(height: 48),
-                  _buildTitle(),
-                  const SizedBox(height: 16),
-                  _buildSubtitle(),
-                  const SizedBox(height: 48),
-                  _buildGoogleSignInButton(),
-                  const SizedBox(height: 16),
-                  _buildPhoneSignInButton(),
-                  const SizedBox(height: 24),
-                  _buildDivider(),
-                  const SizedBox(height: 24),
-                  _buildTermsText(),
-                ],
+      backgroundColor: _surface,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 860;
+
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: wide ? 56 : 20,
+                    vertical: wide ? 40 : 24,
+                  ),
+                  child: wide
+                      ? Row(
+                          children: [
+                            const Expanded(child: _BrandPane()),
+                            const SizedBox(width: 48),
+                            SizedBox(
+                              width: 420,
+                              child: _AuthPanel(
+                                onGoogle: _handleGoogleSignIn,
+                                onPhone: _handlePhoneSignIn,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const _BrandPane(compact: true),
+                            const SizedBox(height: 28),
+                            _AuthPanel(
+                              onGoogle: _handleGoogleSignIn,
+                              onPhone: _handlePhoneSignIn,
+                            ),
+                          ],
+                        ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
-    );
-  }
-
-  Widget _buildLogo() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(60),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.auto_awesome,
-        size: 64,
-        color: Color(0xFF6B21A8),
-      ),
-    );
-  }
-
-  Widget _buildTitle() {
-    return Text(
-      'ASTRA',
-      style: GoogleFonts.playfairDisplay(
-        fontSize: 48,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildSubtitle() {
-    return Text(
-      'AI Life Intelligence Platform',
-      style: GoogleFonts.inter(
-        fontSize: 16,
-        color: Colors.white.withOpacity(0.9),
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  Widget _buildGoogleSignInButton() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            onPressed: authProvider.isLoading
-                ? null
-                : () => _handleGoogleSignIn(authProvider),
-            icon: authProvider.isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.g_mobiledata, size: 24),
-            label: Text(
-              authProvider.isLoading ? 'Signing in...' : 'Continue with Google',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black87,
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPhoneSignInButton() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton.icon(
-            onPressed: authProvider.isLoading
-                ? null
-                : () => _handlePhoneSignIn(authProvider),
-            icon: const Icon(Icons.phone, size: 24),
-            label: Text(
-              'Continue with Phone',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: Colors.white.withOpacity(0.3),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'or',
-            style: GoogleFonts.inter(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 14,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: Colors.white.withOpacity(0.3),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTermsText() {
-    return Text(
-      'By continuing, you agree to our Terms of Service and Privacy Policy',
-      style: GoogleFonts.inter(
-        fontSize: 12,
-        color: Colors.white.withOpacity(0.7),
-      ),
-      textAlign: TextAlign.center,
     );
   }
 
@@ -217,39 +75,33 @@ class _AuthScreenState extends State<AuthScreen> {
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, '/home');
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Sign in failed'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showError(authProvider.errorMessage ?? 'Sign in failed');
     }
   }
 
   Future<void> _handlePhoneSignIn(AuthProvider authProvider) async {
-    // Show phone input dialog
     final phoneController = TextEditingController();
-    
-    showDialog(
+
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Enter Phone Number'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Enter phone number'),
         content: TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
           decoration: const InputDecoration(
             hintText: '+1 234 567 8900',
-            prefixIcon: Icon(Icons.phone),
+            prefixIcon: Icon(Icons.phone_outlined),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               await authProvider.sendOtp(phoneController.text);
               if (mounted) {
                 _showOtpDialog(authProvider, phoneController.text);
@@ -260,32 +112,38 @@ class _AuthScreenState extends State<AuthScreen> {
         ],
       ),
     );
+
+    phoneController.dispose();
   }
 
   void _showOtpDialog(AuthProvider authProvider, String phoneNumber) {
     final otpController = TextEditingController();
-    
-    showDialog(
+
+    showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Enter OTP'),
         content: TextField(
           controller: otpController,
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(
             hintText: '123456',
-            prefixIcon: Icon(Icons.sms),
+            prefixIcon: Icon(Icons.sms_outlined),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () async {
-              Navigator.pop(context);
-              final success = await authProvider.signInWithPhone(phoneNumber, otpController.text);
+              Navigator.pop(dialogContext);
+              final success = await authProvider.signInWithPhone(
+                phoneNumber,
+                otpController.text,
+              );
+              otpController.dispose();
               if (success && mounted) {
                 Navigator.pushReplacementNamed(context, '/home');
               }
@@ -294,6 +152,291 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFB42318),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+class _BrandPane extends StatelessWidget {
+  const _BrandPane({this.compact = false});
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: _AuthScreenState._ink,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: _AuthScreenState._amber,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Text(
+              'ASTRA',
+              style: GoogleFonts.playfairDisplay(
+                color: _AuthScreenState._ink,
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: compact ? 28 : 72),
+        Text(
+          'AI Life Intelligence',
+          style: GoogleFonts.playfairDisplay(
+            color: _AuthScreenState._ink,
+            fontSize: compact ? 42 : 64,
+            height: 1.02,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 18),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Text(
+            'Personalized astrology, guidance, and daily decisions in one calm workspace.',
+            style: GoogleFonts.inter(
+              color: _AuthScreenState._muted,
+              fontSize: compact ? 16 : 18,
+              height: 1.6,
+            ),
+          ),
+        ),
+        if (!compact) ...[const SizedBox(height: 48), const _SignalStrip()],
+      ],
+    );
+  }
+}
+
+class _SignalStrip extends StatelessWidget {
+  const _SignalStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    const items = [
+      ('Birth charts', Icons.blur_circular),
+      ('Dasha insights', Icons.timeline),
+      ('Private memory', Icons.lock_outline),
+    ];
+
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: items
+          .map(
+            (item) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFE7E0D2)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(item.$2, size: 18, color: _AuthScreenState._teal),
+                  const SizedBox(width: 8),
+                  Text(
+                    item.$1,
+                    style: GoogleFonts.inter(
+                      color: _AuthScreenState._ink,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _AuthPanel extends StatelessWidget {
+  const _AuthPanel({required this.onGoogle, required this.onPhone});
+
+  final Future<void> Function(AuthProvider authProvider) onGoogle;
+  final Future<void> Function(AuthProvider authProvider) onPhone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: _AuthScreenState._panel,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE5DED2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 28,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Sign in',
+                style: GoogleFonts.inter(
+                  color: _AuthScreenState._ink,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Continue to your Astra account.',
+                style: GoogleFonts.inter(
+                  color: _AuthScreenState._muted,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 28),
+              _ActionButton(
+                icon: authProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.g_mobiledata, size: 28),
+                label: authProvider.isLoading
+                    ? 'Signing in...'
+                    : 'Continue with Google',
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () => onGoogle(authProvider),
+                filled: true,
+              ),
+              const SizedBox(height: 12),
+              _ActionButton(
+                icon: const Icon(Icons.phone_outlined, size: 20),
+                label: 'Continue with Phone',
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () => onPhone(authProvider),
+              ),
+              const SizedBox(height: 24),
+              const _DividerLabel(),
+              const SizedBox(height: 24),
+              Text(
+                'By continuing, you agree to the Terms of Service and Privacy Policy.',
+                style: GoogleFonts.inter(
+                  color: _AuthScreenState._muted,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.filled = false,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final background = filled ? _AuthScreenState._ink : Colors.white;
+    final foreground = filled ? Colors.white : _AuthScreenState._ink;
+
+    return SizedBox(
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: onPressed,
+        icon: IconTheme.merge(
+          data: IconThemeData(color: foreground),
+          child: icon,
+        ),
+        label: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: foreground,
+          ),
+        ),
+        style: FilledButton.styleFrom(
+          backgroundColor: background,
+          disabledBackgroundColor: background.withValues(alpha: 0.55),
+          foregroundColor: foreground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: filled ? _AuthScreenState._ink : const Color(0xFFD8D0C3),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DividerLabel extends StatelessWidget {
+  const _DividerLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: Color(0xFFE5DED2))),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            'Secure access',
+            style: GoogleFonts.inter(
+              color: _AuthScreenState._muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: Color(0xFFE5DED2))),
+      ],
     );
   }
 }

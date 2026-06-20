@@ -50,8 +50,8 @@ dependencies:
 
   # Authentication
   google_sign_in: ^6.2.1
-  firebase_auth: ^4.16.0
-  firebase_core: ^2.24.2
+  firebase_auth: ^6.5.3
+  firebase_core: ^4.11.0
 
   # Location
   geolocator: ^10.1.0
