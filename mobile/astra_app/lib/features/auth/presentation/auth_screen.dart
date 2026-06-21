@@ -12,12 +12,12 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  static const _ink = Color(0xFF17151F);
-  static const _muted = Color(0xFF6F6A7A);
-  static const _surface = Color(0xFFF8F6F1);
+  static const _ink = Color(0xFF3E2723); // Dark warm brown
+  static const _muted = Color(0xFF8D6E63);
+  static const _surface = Color(0xFFFFF3E0);
   static const _panel = Color(0xFFFFFFFF);
-  static const _teal = Color(0xFF087E8B);
-  static const _amber = Color(0xFFE0A640);
+  static const _primary = Color(0xFFE65100); // Saffron
+  static const _accent = Color(0xFFFFB300); // Gold
 
   @override
   Widget build(BuildContext context) {
@@ -196,8 +196,8 @@ class _BrandPane extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    _AuthScreenState._teal,
-                    _AuthScreenState._amber,
+                    _AuthScreenState._primary,
+                    _AuthScreenState._accent,
                     _AuthScreenState._ink,
                   ],
                   begin: Alignment.topLeft,
@@ -206,7 +206,7 @@ class _BrandPane extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: _AuthScreenState._teal.withOpacity(0.3),
+                    color: _AuthScreenState._primary.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -240,7 +240,7 @@ class _BrandPane extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      color: _AuthScreenState._teal,
+                      color: _AuthScreenState._primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
@@ -324,10 +324,10 @@ class _SignalStrip extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _AuthScreenState._teal.withOpacity(0.1),
+                      color: _AuthScreenState._primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(item.$2, size: 20, color: _AuthScreenState._teal),
+                    child: Icon(item.$2, size: 20, color: _AuthScreenState._primary),
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -485,9 +485,9 @@ class _ActionButton extends StatelessWidget {
     BorderSide? borderSide;
 
     if (isDemo) {
-      background = _AuthScreenState._teal.withOpacity(0.1);
-      foreground = _AuthScreenState._teal;
-      borderSide = BorderSide(color: _AuthScreenState._teal.withOpacity(0.3));
+      background = _AuthScreenState._primary.withOpacity(0.1);
+      foreground = _AuthScreenState._primary;
+      borderSide = BorderSide(color: _AuthScreenState._primary.withOpacity(0.3));
     } else if (filled) {
       background = _AuthScreenState._ink;
       foreground = Colors.white;

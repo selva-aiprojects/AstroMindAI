@@ -26,12 +26,12 @@ class _BirthChartWidgetState extends State<BirthChartWidget> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.06),
+            color: Colors.orange.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(color: Colors.deepPurple.shade50, width: 1),
+        border: Border.all(color: Colors.orange.shade50, width: 1),
       ),
       padding: const Offset(0, 16) == Offset.zero 
           ? const EdgeInsets.all(16) 
@@ -59,7 +59,7 @@ class _BirthChartWidgetState extends State<BirthChartWidget> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.deepPurple.shade50.withOpacity(0.5),
+        color: Colors.orange.shade50.withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -84,7 +84,7 @@ class _BirthChartWidgetState extends State<BirthChartWidget> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.deepPurple.withOpacity(0.12),
+                    color: Colors.orange.withOpacity(0.12),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -97,7 +97,7 @@ class _BirthChartWidgetState extends State<BirthChartWidget> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.deepPurple.shade800 : Colors.grey.shade600,
+              color: isSelected ? Colors.orange.shade800 : Colors.grey.shade600,
             ),
             const SizedBox(width: 8),
             Text(
@@ -105,7 +105,7 @@ class _BirthChartWidgetState extends State<BirthChartWidget> {
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Colors.deepPurple.shade800 : Colors.grey.shade600,
+                color: isSelected ? Colors.orange.shade800 : Colors.grey.shade600,
               ),
             ),
           ],
@@ -160,12 +160,12 @@ class NorthIndianChartPainter extends CustomPainter {
     final radius = size.width / 2 - 8;
 
     // Draw background
-    final bgPaint = Paint()..color = Colors.deepPurple.shade50.withOpacity(0.1);
+    final bgPaint = Paint()..color = Colors.orange.shade50.withOpacity(0.1);
     canvas.drawRect(Rect.fromLTWH(8, 8, size.width - 16, size.height - 16), bgPaint);
 
     // Draw outer square
     final outerPaint = Paint()
-      ..color = Colors.deepPurple.shade300
+      ..color = Colors.orange.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     final outerRect = Rect.fromCircle(center: center, radius: radius);
@@ -173,7 +173,7 @@ class NorthIndianChartPainter extends CustomPainter {
 
     // Draw inner lines (diagonals and diamond)
     final linePaint = Paint()
-      ..color = Colors.deepPurple.shade200
+      ..color = Colors.orange.shade200
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -210,7 +210,7 @@ class NorthIndianChartPainter extends CustomPainter {
         style: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.bold,
-          color: Colors.deepPurple.shade900,
+          color: Colors.orange.shade900,
         ),
       );
       textPainter.layout();
@@ -316,14 +316,14 @@ class SouthIndianChartPainter extends CustomPainter {
 
     // Draw outer border
     final outerPaint = Paint()
-      ..color = Colors.deepPurple.shade300
+      ..color = Colors.orange.shade300
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     canvas.drawRect(Rect.fromLTWH(4, 4, w - 8, h - 8), outerPaint);
 
     // Draw cell grid lines
     final linePaint = Paint()
-      ..color = Colors.deepPurple.shade200
+      ..color = Colors.orange.shade200
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -341,7 +341,7 @@ class SouthIndianChartPainter extends CustomPainter {
 
     // Center fill for brand info
     final centerRect = Rect.fromLTWH(cellSize + 1, cellSize + 1, cellSize * 2 - 2, cellSize * 2 - 2);
-    final centerPaint = Paint()..color = Colors.deepPurple.shade50.withOpacity(0.15);
+    final centerPaint = Paint()..color = Colors.orange.shade50.withOpacity(0.15);
     canvas.drawRect(centerRect, centerPaint);
 
     // Draw Center text
@@ -351,7 +351,7 @@ class SouthIndianChartPainter extends CustomPainter {
       style: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.bold,
-        color: Colors.deepPurple.shade900,
+        color: Colors.orange.shade900,
         letterSpacing: 0.5,
       ),
     );
@@ -366,7 +366,7 @@ class SouthIndianChartPainter extends CustomPainter {
       style: GoogleFonts.inter(
         fontSize: 10,
         fontWeight: FontWeight.w500,
-        color: Colors.deepPurple.shade700,
+        color: Colors.orange.shade700,
       ),
     );
     centerPainter.layout();
@@ -427,7 +427,7 @@ class SouthIndianChartPainter extends CustomPainter {
         style: GoogleFonts.inter(
           fontSize: 9,
           fontWeight: FontWeight.bold,
-          color: Colors.deepPurple.shade200,
+          color: Colors.orange.shade200,
         ),
       );
       textPainter.layout();

@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'features/birth_profile/presentation/birth_profile_onboarding.dart';
 import 'features/chat/presentation/chat_screen.dart';
 import 'features/auth/presentation/auth_screen.dart';
 import 'features/astrology/presentation/birth_chart_screen.dart';
+import 'features/home/presentation/home_screen.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/network/api_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const AstraApp());
 }
 
@@ -25,7 +32,7 @@ class AstraApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
             apiClient: apiClient,
-            firebaseEnabled: false,
+            firebaseEnabled: true,
           ),
         ),
       ],
@@ -33,81 +40,37 @@ class AstraApp extends StatelessWidget {
         title: 'AstroMindAI - AI Life Intelligence',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
+          primarySwatch: Colors.orange,
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6B21A8),
+            seedColor: const Color(0xFFE65100),
+            primary: const Color(0xFFE65100),
+            secondary: const Color(0xFFFFB300),
+            tertiary: const Color(0xFFF57C00),
             brightness: Brightness.light,
           ),
+          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         ),
         darkTheme: ThemeData(
-          primarySwatch: Colors.deepPurple,
+          primarySwatch: Colors.orange,
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6B21A8),
+            seedColor: const Color(0xFFE65100),
+            primary: const Color(0xFFFF9800),
+            secondary: const Color(0xFFFFC107),
+            tertiary: const Color(0xFFFFB74D),
             brightness: Brightness.dark,
           ),
+          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         ),
         themeMode: ThemeMode.system,
         home: const AuthScreen(),
         routes: {
-          '/home': (_) => const _HomeScreen(),
+          '/home': (_) => const HomeScreen(),
           '/birth-profile': (_) => const BirthProfileOnboarding(),
           '/chat': (_) => const ChatScreen(),
           '/birth-chart': (_) => const BirthChartScreen(),
         },
-      ),
-    );
-  }
-}
-
-class _HomeScreen extends StatelessWidget {
-  const _HomeScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('AstroMindAI')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Text(
-            'Welcome to AstroMindAI',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            authProvider.backendUserId == null
-                ? 'Backend session is not available.'
-                : 'Backend session connected.',
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/birth-profile'),
-            icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Create Birth Profile'),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/birth-chart'),
-            icon: const Icon(Icons.auto_graph),
-            label: const Text('View Birth Chart'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/chat'),
-            icon: const Icon(Icons.chat_bubble_outline),
-            label: const Text('Open AI Chat'),
-          ),
-          const SizedBox(height: 12),
-          TextButton.icon(
-            onPressed: () => authProvider.signOut(),
-            icon: const Icon(Icons.logout),
-            label: const Text('Sign out'),
-          ),
-        ],
       ),
     );
   }

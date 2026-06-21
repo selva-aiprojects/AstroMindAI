@@ -100,19 +100,19 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F1),
+      backgroundColor: const Color(0xFFFFF3E0),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF17151F)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF3E2723)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Birth Profile',
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF17151F),
+            color: const Color(0xFF3E2723),
             fontSize: 22,
           ),
         ),
@@ -157,7 +157,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               decoration: BoxDecoration(
                 gradient: index <= _currentStep
                     ? const LinearGradient(
-                        colors: [Color(0xFF6B21A8), Color(0xFF087E8B)],
+                        colors: [Color(0xFFE65100), Color(0xFFFFB300)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       )
@@ -196,7 +196,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 hintText: 'Enter your full name',
-                prefixIcon: const Icon(Icons.person, color: Color(0xFF087E8B)),
+                prefixIcon: const Icon(Icons.person, color: Color(0xFFFFB300)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -232,15 +232,15 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF6B21A8) : Colors.white,
+                  color: isSelected ? const Color(0xFFE65100) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF6B21A8) : const Color(0xFFE5DED2),
+                    color: isSelected ? const Color(0xFFE65100) : const Color(0xFFE5DED2),
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF6B21A8).withOpacity(0.2),
+                            color: const Color(0xFFE65100).withOpacity(0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -257,7 +257,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                   children: [
                     Icon(
                       gender == 'Male' ? Icons.male : gender == 'Female' ? Icons.female : Icons.transgender,
-                      color: isSelected ? Colors.white : const Color(0xFF087E8B),
+                      color: isSelected ? Colors.white : const Color(0xFFFFB300),
                       size: 24,
                     ),
                     const SizedBox(width: 16),
@@ -266,7 +266,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : const Color(0xFF17151F),
+                        color: isSelected ? Colors.white : const Color(0xFF3E2723),
                       ),
                     ),
                   ],
@@ -307,10 +307,10 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF087E8B).withOpacity(0.1),
+                      color: const Color(0xFFFFB300).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.calendar_today, color: Color(0xFF087E8B)),
+                    child: const Icon(Icons.calendar_today, color: Color(0xFFFFB300)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -321,7 +321,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: _selectedDate != null ? const Color(0xFF17151F) : const Color(0xFF6F6A7A),
+                        color: _selectedDate != null ? const Color(0xFF3E2723) : const Color(0xFF6F6A7A),
                       ),
                     ),
                   ),
@@ -377,7 +377,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: _selectedTime != null ? const Color(0xFF17151F) : const Color(0xFF6F6A7A),
+                        color: _selectedTime != null ? const Color(0xFF3E2723) : const Color(0xFF6F6A7A),
                       ),
                     ),
                   ),
@@ -403,7 +403,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF17151F),
+                      color: const Color(0xFF3E2723),
                     ),
                   ),
                 ),
@@ -439,9 +439,9 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 hintText: 'Enter your birth place',
-                prefixIcon: const Icon(Icons.location_on, color: Color(0xFF087E8B)),
+                prefixIcon: const Icon(Icons.location_on, color: Color(0xFFFFB300)),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.my_location, color: Color(0xFF6B21A8)),
+                  icon: const Icon(Icons.my_location, color: Color(0xFFE65100)),
                   onPressed: _getCurrentLocation,
                 ),
                 border: OutlineInputBorder(
@@ -460,12 +460,12 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF087E8B).withOpacity(0.1),
+                color: const Color(0xFFFFB300).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, color: Color(0xFF087E8B), size: 20),
+                  const Icon(Icons.check_circle, color: Color(0xFFFFB300), size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -473,7 +473,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF17151F),
+                        color: const Color(0xFF3E2723),
                       ),
                     ),
                   ),
@@ -538,13 +538,13 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [const Color(0xFF6B21A8).withOpacity(0.1), const Color(0xFF087E8B).withOpacity(0.1)],
+                colors: [const Color(0xFFE65100).withOpacity(0.1), const Color(0xFFFFB300).withOpacity(0.1)],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(Icons.auto_awesome, color: Color(0xFF6B21A8), size: 20),
+                const Icon(Icons.auto_awesome, color: Color(0xFFE65100), size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -552,7 +552,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF17151F),
+                      color: const Color(0xFF3E2723),
                     ),
                   ),
                 ),
@@ -568,7 +568,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF087E8B)),
+        Icon(icon, size: 20, color: const Color(0xFFFFB300)),
         const SizedBox(width: 12),
         SizedBox(
           width: 80,
@@ -586,7 +586,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
             value,
             style: GoogleFonts.inter(
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF17151F),
+              color: const Color(0xFF3E2723),
               fontSize: 15,
             ),
           ),
@@ -606,7 +606,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [const Color(0xFF6B21A8), const Color(0xFF087E8B)],
+                  colors: [const Color(0xFFE65100), const Color(0xFFFFB300)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -621,7 +621,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF17151F),
+              color: const Color(0xFF3E2723),
             ),
           ),
           if (subtitle != null) ...[
@@ -674,7 +674,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
-                    color: const Color(0xFF17151F),
+                    color: const Color(0xFF3E2723),
                   ),
                 ),
               ),
@@ -685,9 +685,9 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
               onPressed: _canProceed && !_isSaving ? _nextStep : null,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: const Color(0xFF6B21A8),
+                backgroundColor: const Color(0xFFE65100),
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFF6B21A8).withOpacity(0.5),
+                disabledBackgroundColor: const Color(0xFFE65100).withOpacity(0.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

@@ -104,11 +104,13 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
             'Birth Chart Dashboard',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
           ),
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: const Center(
           child: Column(
@@ -126,11 +128,13 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     if (errorMessage != null) {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
             'Birth Chart Dashboard',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
           ),
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Center(
           child: Padding(
@@ -161,14 +165,16 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          iconTheme: const IconThemeData(color: Colors.white),
           title: Text(
             'Astro Intelligence',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Colors.white),
           ),
           bottom: TabBar(
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
             labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
             unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
             tabs: const [
@@ -180,7 +186,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           elevation: 2,
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh, color: Colors.white),
               onPressed: _loadBirthChart,
             ),
           ],
@@ -370,7 +376,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [Color(0xFF4C1D95), Color(0xFF6B21A8)],
+            colors: [Color(0xFFE65100), Color(0xFFE65100)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -656,7 +662,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.timeline, color: Colors.deepPurple, size: 24),
+                const Icon(Icons.timeline, color: Colors.orange, size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'Vimshottari Dasha Timeline',
@@ -690,7 +696,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           height: 14,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: isCurrent ? const Color(0xFFE0A640) : Colors.deepPurple.shade200,
+                            color: isCurrent ? const Color(0xFFE0A640) : Colors.orange.shade200,
                             border: isCurrent
                                 ? Border.all(color: Colors.white, width: 2)
                                 : null,
@@ -709,7 +715,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           Container(
                             width: 2,
                             height: 50,
-                            color: Colors.deepPurple.shade100,
+                            color: Colors.orange.shade100,
                           ),
                       ],
                     ),
@@ -849,7 +855,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
+              color: Colors.orange,
             ),
           ),
           const SizedBox(height: 4),
@@ -895,15 +901,15 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.deepPurple.shade50,
+        color: Colors.orange.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.deepPurple.shade200),
+        border: Border.all(color: Colors.orange.shade200),
       ),
       child: Text(
         '$label: $value',
         style: GoogleFonts.inter(
           fontSize: 12,
-          color: Colors.deepPurple.shade800,
+          color: Colors.orange.shade800,
         ),
       ),
     );
