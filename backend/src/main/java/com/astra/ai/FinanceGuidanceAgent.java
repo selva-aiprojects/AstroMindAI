@@ -2,6 +2,9 @@ package com.astra.ai;
 
 import com.astra.ai.AgentRouter.AgentRequest;
 import com.astra.ai.AgentRouter.AgentResponse;
+import com.astra.astrology.SwissEphemerisService.BirthChart;
+import com.astra.astrology.SwissEphemerisService.PlanetPosition;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,30 +15,40 @@ import java.util.Map;
 @Slf4j
 public class FinanceGuidanceAgent implements Agent {
 
+    private final ChatLanguageModel chatLanguageModel;
+
+    public FinanceGuidanceAgent(ChatLanguageModel chatLanguageModel) {
+        this.chatLanguageModel = chatLanguageModel;
+    }
+
     @Override
     public AgentResponse process(AgentRequest request) {
         long startTime = System.currentTimeMillis();
         log.info("Finance Guidance Agent processing request for user: {}", request.getUserId());
-        
+
         try {
-            // Extract chart data from context
             Map<String, Object> context = request.getContext();
-            
-            // Generate finance guidance
-            String response = generateFinanceGuidance(context);
-            
+            BirthChart chart = (BirthChart) context.get("chart");
+
+            String response;
+            if (chart != null) {
+                response = generateLLMResponse(request.getQuery(), chart);
+            } else {
+                response = "I need your birth chart data to provide financial guidance. Please ensure your birth profile is complete.";
+            }
+
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("category", "finance");
-            
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             return AgentResponse.builder()
                     .agentType(getAgentName())
                     .response(response)
                     .metadata(metadata)
                     .processingTimeMs(processingTime)
                     .build();
-                    
+
         } catch (Exception e) {
             log.error("Error in Finance Guidance Agent", e);
             return AgentResponse.builder()
@@ -47,46 +60,54 @@ public class FinanceGuidanceAgent implements Agent {
         }
     }
 
-    private String generateFinanceGuidance(Map<String, Object> context) {
-        StringBuilder response = new StringBuilder();
-        
-        response.append("💰 **Finance & Wealth Guidance**\n\n");
-        
-        response.append("Based on the analysis of your 2nd house (Dhana Sthana), 11th house (Labha Sthana), ");
-        response.append("9th house (Bhagya Sthana), and Dhana yogas, here are insights for your finances:\n\n");
-        
-        response.append("**Financial Strengths:**\n");
-        response.append("- Your chart indicates potential for steady income accumulation.\n");
-        response.append("- Good money management skills are indicated.\n");
-        response.append("- Opportunities for multiple income sources exist.\n\n");
-        
-        response.append("Favorable Investment Areas:\n");
-        response.append("- Real estate shows long-term potential.\n");
-        response.append("- Stock market investments may be favorable during certain periods.\n");
-        response.append("- Business ventures have growth potential.\n");
-        response.append("- Fixed income instruments provide stability.\n\n");
-        
-        response.append("**Timing for Financial Decisions:**\n");
-        response.append("- Current Dasha period favors financial growth and investments.\n");
-        response.append("- Favorable periods for major purchases in the next 6 months.\n");
-        response.append("- Good timing for starting new business ventures indicated.\n\n");
-        
-        response.append("**Financial Recommendations:**\n");
-        response.append("- Maintain a balanced portfolio with diversified investments.\n");
-        response.append("- Focus on long-term wealth creation over short-term gains.\n");
-        response.append("- Avoid speculative investments during unfavorable periods.\n");
-        response.append("- Build emergency funds for financial security.\n\n");
-        
-        response.append("**Remedies for Financial Prosperity:**\n");
-        response.append("- Worship Lakshmi on Fridays for wealth blessings.\n");
-        response.append("- Offer charity to attract financial abundance.\n");
-        response.append("- Chant mantras for prosperity and success.\n\n");
-        
-        response.append("⚠️ **DISCLAIMER**: This guidance is based on astrological analysis and should NOT be considered ");
-        response.append("financial advice. Please consult certified financial advisors before making investment decisions. ");
-        response.append("Past astrological predictions do not guarantee future financial results.\n");
-        
-        return response.toString();
+    private String generateLLMResponse(String query, BirthChart chart) {
+        String chartSummary = summarizeChart(chart);
+        try {
+            String prompt = """
+                    You are a Vedic astrology financial advisor. Analyze the birth chart for financial insights.
+                    Focus on: 2nd house (Dhana Sthana), 11th house (Labha Sthana), 9th house (Bhagya Sthana), Jupiter, Venus.
+                    Keep response to 3-4 paragraphs, practical and actionable.
+
+                    Birth Chart:
+                    %s
+
+                    User Query: "%s"
+                    """.formatted(chartSummary, query);
+            return chatLanguageModel.generate(prompt);
+        } catch (Exception e) {
+            log.warn("LLM fallback for finance: {}", e.getMessage());
+            return templateResponse();
+        }
+    }
+
+    private String templateResponse() {
+        return """
+                Finance & Wealth Guidance
+
+                Your 2nd and 11th houses show good financial potential. Jupiter's influence suggests growth in wealth through consistent effort and wise investments. The chart indicates steady income accumulation and good money management skills.
+
+                Favorable Investment Areas: Real estate shows long-term potential. Stock market investments may be favorable during specific planetary periods. Fixed income instruments provide stability.
+
+                The current Dasha period supports financial growth. This is a favorable time for investments and financial planning. Focus on long-term wealth creation over short-term gains.
+
+                Maintain a balanced portfolio and build emergency funds. Consider consulting a financial advisor for personalized investment strategies.
+
+                Disclaimer: This guidance is based on astrological analysis and should NOT be considered financial advice.""";
+    }
+
+    private String summarizeChart(BirthChart chart) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ascendant: ").append(signName(chart.getAscendant())).append("\n");
+        for (Map.Entry<String, PlanetPosition> e : chart.getPlanetaryPositions().entrySet()) {
+            PlanetPosition p = e.getValue();
+            sb.append(e.getKey()).append(": ").append(p.getSign()).append(" House ").append(chart.getHousePlacements().get(e.getKey())).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String signName(double lon) {
+        String[] s = {"Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"};
+        return s[(int)(lon/30)];
     }
 
     @Override

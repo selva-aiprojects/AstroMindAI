@@ -1,0 +1,27 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#1A1A2E" stroke="#6B21A8" stroke-width="4"/>
+  
+  <!-- Zodiac Ring -->
+  <circle cx="100" cy="100" r="80" stroke="#E0A640" stroke-width="2" stroke-dasharray="8 4"/>
+  
+  <!-- Central Star/Planet -->
+  <circle cx="100" cy="100" r="25" fill="#6B21A8"/>
+  <circle cx="100" cy="100" r="15" fill="#E0A640"/>
+  
+  <!-- Orbital Paths -->
+  <ellipse cx="100" cy="100" rx="45" ry="20" stroke="#087E8B" stroke-width="2" transform="rotate(-30 100 100)"/>
+  <ellipse cx="100" cy="100" rx="45" ry="20" stroke="#087E8B" stroke-width="2" transform="rotate(30 100 100)"/>
+  
+  <!-- Planets -->
+  <circle cx="55" cy="70" r="8" fill="#E0A640"/>
+  <circle cx="145" cy="70" r="6" fill="#087E8B"/>
+  <circle cx="100" cy="45" r="5" fill="#6B21A8"/>
+  <circle cx="100" cy="155" r="7" fill="#E0A640"/>
+  
+  <!-- Sparkles -->
+  <circle cx="30" cy="100" r="3" fill="#E0A640"/>
+  <circle cx="170" cy="100" r="3" fill="#E0A640"/>
+  <circle cx="100" cy="30" r="2" fill="#087E8B"/>
+  <circle cx="100" cy="170" r="2" fill="#087E8B"/>
+</svg>

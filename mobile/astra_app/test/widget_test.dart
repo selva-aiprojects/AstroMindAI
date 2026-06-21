@@ -14,7 +14,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const AstraApp());
 
-    expect(find.text('ASTRA'), findsOneWidget);
+    expect(find.text('AstroMindAI'), findsOneWidget);
     expect(find.text('Continue with Google'), findsOneWidget);
   });
 }

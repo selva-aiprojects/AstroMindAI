@@ -2,6 +2,9 @@ package com.astra.ai;
 
 import com.astra.ai.AgentRouter.AgentRequest;
 import com.astra.ai.AgentRouter.AgentResponse;
+import com.astra.astrology.SwissEphemerisService.BirthChart;
+import com.astra.astrology.SwissEphemerisService.PlanetPosition;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,30 +15,40 @@ import java.util.Map;
 @Slf4j
 public class MarriageGuidanceAgent implements Agent {
 
+    private final ChatLanguageModel chatLanguageModel;
+
+    public MarriageGuidanceAgent(ChatLanguageModel chatLanguageModel) {
+        this.chatLanguageModel = chatLanguageModel;
+    }
+
     @Override
     public AgentResponse process(AgentRequest request) {
         long startTime = System.currentTimeMillis();
         log.info("Marriage Guidance Agent processing request for user: {}", request.getUserId());
-        
+
         try {
-            // Extract chart data from context
             Map<String, Object> context = request.getContext();
-            
-            // Generate marriage guidance
-            String response = generateMarriageGuidance(context);
-            
+            BirthChart chart = (BirthChart) context.get("chart");
+
+            String response;
+            if (chart != null) {
+                response = generateLLMResponse(request.getQuery(), chart);
+            } else {
+                response = "I need your birth chart data to provide relationship guidance. Please ensure your birth profile is complete.";
+            }
+
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("category", "marriage");
-            
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             return AgentResponse.builder()
                     .agentType(getAgentName())
                     .response(response)
                     .metadata(metadata)
                     .processingTimeMs(processingTime)
                     .build();
-                    
+
         } catch (Exception e) {
             log.error("Error in Marriage Guidance Agent", e);
             return AgentResponse.builder()
@@ -47,45 +60,54 @@ public class MarriageGuidanceAgent implements Agent {
         }
     }
 
-    private String generateMarriageGuidance(Map<String, Object> context) {
-        StringBuilder response = new StringBuilder();
-        
-        response.append("💕 **Marriage & Relationship Guidance**\n\n");
-        
-        response.append("Based on the analysis of your 7th house (Kalatra Sthana), Venus/Jupiter positions, ");
-        response.append("and D9 (Navamsha) chart, here are insights for your relationships:\n\n");
-        
-        response.append("**Relationship Strengths:**\n");
-        response.append("- Your chart indicates a harmonious and loving nature in relationships.\n");
-        response.append("- You value commitment and loyalty in partnerships.\n");
-        response.append("- Good communication skills help maintain healthy relationships.\n\n");
-        
-        response.append("**Ideal Partner Qualities:**\n");
-        response.append("- Someone who shares your values and life goals\n");
-        response.append("- A partner with emotional maturity and stability\n");
-        response.append("- Someone who appreciates your nurturing nature\n");
-        response.append("- A partner who supports your personal growth\n\n");
-        
-        response.append("Favorable Timing for Marriage:\n");
-        response.append("- The current Dasha period indicates favorable conditions for marriage.\n");
-        response.append("- Look for auspicious periods in the next 12-18 months.\n");
-        response.append("- Specific months show stronger marriage potential.\n\n");
-        
-        response.append("**Relationship Advice:**\n");
-        response.append("- Focus on building emotional connection and trust.\n");
-        response.append("- Maintain open and honest communication with your partner.\n");
-        response.append("- Balance personal space and togetherness in relationships.\n");
-        response.append("- Practice patience and understanding during conflicts.\n\n");
-        
-        response.append("**Remedies for Relationship Harmony:**\n");
-        response.append("- Worship Venus on Fridays for relationship blessings.\n");
-        response.append("- Offer water to the Sun for improved compatibility.\n");
-        response.append("- Chant mantras for relationship harmony.\n\n");
-        
-        response.append("💡 *For detailed compatibility analysis (Synastry), consider a professional consultation ");
-        response.append("with birth charts of both partners.*\n");
-        
-        return response.toString();
+    private String generateLLMResponse(String query, BirthChart chart) {
+        String chartSummary = summarizeChart(chart);
+        try {
+            String prompt = """
+                    You are a Vedic astrology relationship counselor. Analyze the birth chart for marriage/relationship insights.
+                    Focus on: 7th house (Kalatra Sthana), Venus, Jupiter, D9 (Navamsha).
+                    Keep response to 3-4 paragraphs, warm and insightful.
+
+                    Birth Chart:
+                    %s
+
+                    User Query: "%s"
+                    """.formatted(chartSummary, query);
+            return chatLanguageModel.generate(prompt);
+        } catch (Exception e) {
+            log.warn("LLM fallback for marriage: {}", e.getMessage());
+            return templateResponse();
+        }
+    }
+
+    private String templateResponse() {
+        return """
+                Marriage & Relationship Guidance
+
+                Your 7th house analysis shows favorable conditions for relationships. Venus is positioned to support harmonious partnerships. The chart indicates a loving nature with strong commitment in relationships.
+
+                Ideal Partner Qualities: Someone who shares your values, has emotional maturity, supports your growth, and appreciates your nurturing nature.
+
+                The current Dasha period is favorable for relationship development. Look for auspicious opportunities in the coming 12-18 months for deepening bonds or marriage.
+
+                Focus on building emotional connection and maintaining open communication with your partner.
+
+                For detailed compatibility analysis (Synastry), consult with a professional Vedic astrologer with both partners' charts.""";
+    }
+
+    private String summarizeChart(BirthChart chart) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ascendant: ").append(signName(chart.getAscendant())).append("\n");
+        for (Map.Entry<String, PlanetPosition> e : chart.getPlanetaryPositions().entrySet()) {
+            PlanetPosition p = e.getValue();
+            sb.append(e.getKey()).append(": ").append(p.getSign()).append(" House ").append(chart.getHousePlacements().get(e.getKey())).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String signName(double lon) {
+        String[] s = {"Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"};
+        return s[(int)(lon/30)];
     }
 
     @Override

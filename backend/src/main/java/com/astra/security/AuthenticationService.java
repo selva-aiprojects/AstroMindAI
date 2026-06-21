@@ -1,12 +1,16 @@
 package com.astra.security;
 
+import com.astra.model.BirthProfile;
 import com.astra.model.User;
 import com.astra.repository.UserRepository;
+import com.astra.service.BirthProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +22,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final BirthProfileService birthProfileService;
 
     public String authenticateWithGoogle(String googleId, String email, String name) {
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -73,6 +78,47 @@ public class AuthenticationService {
         }
         
         throw new RuntimeException("Invalid token");
+    }
+
+    public String authenticateDemo() {
+        Optional<User> existingUser = userRepository.findByEmail("demo@astromindai.app");
+
+        User user;
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+            log.info("Demo login: existing user found");
+        } else {
+            user = new User();
+            user.setEmail("demo@astromindai.app");
+            user.setAuthProvider(User.AuthProvider.EMAIL);
+            user.setSubscriptionTier(User.SubscriptionTier.PREMIUM);
+            user.setIsActive(true);
+            user = userRepository.save(user);
+            log.info("Demo login: new user created");
+        }
+
+        // Auto-create demo birth profile if it doesn't exist
+        try {
+            if (!birthProfileService.getBirthProfileByUserId(user.getUserId()).isPresent()) {
+                BirthProfile demoProfile = new BirthProfile();
+                demoProfile.setUser(user);
+                demoProfile.setFullName("Demo User");
+                demoProfile.setGender(BirthProfile.Gender.MALE);
+                demoProfile.setBirthDate(LocalDate.of(1990, 6, 15)); // Demo birth date
+                demoProfile.setBirthTime(LocalTime.of(10, 30)); // Demo birth time
+                demoProfile.setBirthLatitude(new java.math.BigDecimal("28.6139")); // New Delhi coordinates
+                demoProfile.setBirthLongitude(new java.math.BigDecimal("77.2090"));
+                demoProfile.setTimezone("Asia/Kolkata");
+                demoProfile.setAyanamsa("LAHIRI");
+                birthProfileService.createBirthProfile(demoProfile);
+                log.info("Demo birth profile created for user: {}", user.getUserId());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to create demo birth profile: {}", e.getMessage());
+            // Continue with authentication even if birth profile creation fails
+        }
+
+        return jwtTokenProvider.generateToken(user.getUserId(), user.getEmail());
     }
 
     public void logout(String token) {

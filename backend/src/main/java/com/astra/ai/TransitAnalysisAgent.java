@@ -3,7 +3,9 @@ package com.astra.ai;
 import com.astra.ai.AgentRouter.AgentRequest;
 import com.astra.ai.AgentRouter.AgentResponse;
 import com.astra.astrology.TransitCalculator;
-import lombok.RequiredArgsConstructor;
+import com.astra.astrology.SwissEphemerisService.BirthChart;
+import com.astra.astrology.SwissEphemerisService.PlanetPosition;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,43 +14,46 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class TransitAnalysisAgent implements Agent {
 
-    private final TransitCalculator transitCalculator;
+    private final ChatLanguageModel chatLanguageModel;
+
+    public TransitAnalysisAgent(ChatLanguageModel chatLanguageModel) {
+        this.chatLanguageModel = chatLanguageModel;
+    }
 
     @Override
     public AgentResponse process(AgentRequest request) {
         long startTime = System.currentTimeMillis();
         log.info("Transit Analysis Agent processing request for user: {}", request.getUserId());
-        
+
         try {
-            // Extract birth data from context
             Map<String, Object> context = request.getContext();
-            Map<String, Object> natalPositions = (Map<String, Object>) context.get("planetaryPositions");
-            
-            // Calculate transits for current date
-            TransitCalculator.TransitAnalysis analysis = transitCalculator.calculateTransits(
-                    LocalDate.now(), 
-                    (Map) natalPositions
-            );
-            
-            // Generate response
-            String response = generateTransitResponse(analysis);
-            
+            BirthChart chart = (BirthChart) context.get("chart");
+
+            String response;
+            if (chart != null) {
+                TransitCalculator transitCalc = new TransitCalculator();
+                TransitCalculator.TransitAnalysis analysis = transitCalc.calculateTransits(
+                        LocalDate.now(), chart.getPlanetaryPositions());
+                response = generateLLMResponse(request.getQuery(), analysis, chart);
+            } else {
+                response = "I need your birth chart data to provide transit analysis. Please ensure your birth profile is complete.";
+            }
+
             Map<String, Object> metadata = new HashMap<>();
-            metadata.put("analysis", analysis);
-            
+            metadata.put("category", "transit");
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             return AgentResponse.builder()
                     .agentType(getAgentName())
                     .response(response)
                     .metadata(metadata)
                     .processingTimeMs(processingTime)
                     .build();
-                    
+
         } catch (Exception e) {
             log.error("Error in Transit Analysis Agent", e);
             return AgentResponse.builder()
@@ -60,47 +65,54 @@ public class TransitAnalysisAgent implements Agent {
         }
     }
 
-    private String generateTransitResponse(TransitCalculator.TransitAnalysis analysis) {
-        StringBuilder response = new StringBuilder();
-        
-        response.append("🌍 **Current Transit Analysis (Gochara)**\n\n");
-        response.append("Date: ").append(analysis.getTransitDate()).append("\n\n");
-        
-        // Major transits
+    private String generateLLMResponse(String query, TransitCalculator.TransitAnalysis analysis, BirthChart chart) {
+        StringBuilder transitSummary = new StringBuilder();
+        transitSummary.append("Current Date: ").append(analysis.getTransitDate()).append("\n");
         if (!analysis.getMajorTransits().isEmpty()) {
-            response.append("**Major Transits Active:**\n");
-            for (Map.Entry<String, String> entry : analysis.getMajorTransits().entrySet()) {
-                response.append(String.format("- **%s**: %s\n", entry.getKey(), entry.getValue()));
-            }
-            response.append("\n");
-        }
-        
-        // Current planetary positions
-        response.append("**Current Planetary Positions:**\n");
-        for (Map.Entry<String, com.astra.astrology.SwissEphemerisService.PlanetPosition> entry : 
-                analysis.getTransitPositions().entrySet()) {
-            com.astra.astrology.SwissEphemerisService.PlanetPosition position = entry.getValue();
-            response.append(String.format("- **%s**: %s in %s\n", 
-                    entry.getKey(), 
-                    position.getSign(), 
-                    position.getNakshatra()));
-        }
-        
-        response.append("\n**Key Aspects:**\n");
-        for (Map.Entry<String, TransitCalculator.TransitAspect> entry : analysis.getAspects().entrySet()) {
-            TransitCalculator.TransitAspect aspect = entry.getValue();
-            if (aspect.getOrb() < 10) { // Only show close aspects
-                response.append(String.format("- **%s**: %s aspect (orb: %.1f°)\n", 
-                        entry.getKey(), 
-                        aspect.getAspectType(), 
-                        aspect.getOrb()));
+            transitSummary.append("Major Transits:\n");
+            for (Map.Entry<String, String> e : analysis.getMajorTransits().entrySet()) {
+                transitSummary.append("- ").append(e.getKey()).append(": ").append(e.getValue()).append("\n");
             }
         }
-        
-        response.append("\n💡 *Transit analysis shows how current planetary movements affect your natal chart. ");
-        response.append("Pay special attention to major transits involving Saturn, Jupiter, and the nodes (Rahu/Ketu).*\n");
-        
-        return response.toString();
+
+        try {
+            String prompt = """
+                    You are a Vedic astrology transit (Gochara) expert. Interpret how current planetary transits affect the birth chart.
+                    Focus on: Saturn (Sade Sati), Jupiter transits, Rahu/Ketu transits, and major aspects.
+                    Keep response to 3-4 paragraphs, practical and timely.
+
+                    Transit Data:
+                    %s
+
+                    User Query: "%s"
+                    """.formatted(transitSummary.toString(), query);
+            return chatLanguageModel.generate(prompt);
+        } catch (Exception e) {
+            log.warn("LLM fallback for transit: {}", e.getMessage());
+            return templateResponse(analysis);
+        }
+    }
+
+    private String templateResponse(TransitCalculator.TransitAnalysis analysis) {
+        StringBuilder sb = new StringBuilder("Current Transit Analysis (Gochara)\n\n");
+        sb.append("Date: ").append(analysis.getTransitDate()).append("\n\n");
+
+        if (!analysis.getMajorTransits().isEmpty()) {
+            sb.append("Active Major Transits:\n");
+            for (Map.Entry<String, String> e : analysis.getMajorTransits().entrySet()) {
+                sb.append("- ").append(e.getKey()).append(": ").append(e.getValue()).append("\n");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("Current planetary movements interact with your natal chart to create favorable ");
+        sb.append("and challenging periods for different life areas. Pay special attention to major ");
+        sb.append("transits involving Saturn, Jupiter, and the lunar nodes (Rahu/Ketu).\n\n");
+
+        sb.append("Tip: Transit analysis shows how current planetary movements affect your natal placements. ");
+        sb.append("Use this information to plan major activities and decisions during favorable periods.");
+
+        return sb.toString();
     }
 
     @Override

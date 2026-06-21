@@ -1,5 +1,6 @@
 package com.astra.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BirthProfile {
 
     @Id
@@ -42,10 +45,10 @@ public class BirthProfile {
     private LocalTime birthTime;
 
     @Column(nullable = false, precision = 10, scale = 8)
-    private Double birthLatitude;
+    private BigDecimal birthLatitude;
 
     @Column(nullable = false, precision = 11, scale = 8)
-    private Double birthLongitude;
+    private BigDecimal birthLongitude;
 
     @Column(nullable = false)
     private String timezone;

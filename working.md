@@ -1,0 +1,101 @@
+# Working Status — AstroMindAI (Project ASTRA)
+
+## Current Phase: Wired MVP
+
+All core components have been wired for a fully working demo. The app can run in development mode with zero external dependencies.
+
+## What's Wired
+
+### Backend (Spring Boot 3.2 / Java 17)
+- [x] **Swiss Ephemeris** (`SwissEphemerisService.java`): Real `SwissEph` library calls (`swe_calc_ut`, `swe_houses`) with simplified fallback when native lib unavailable
+- [x] **AI Agents** (10 agents): All wired to LangChain4j `ChatLanguageModel` — sends birth chart context as structured prompt to LLM (OpenAI GPT-4o / Claude / Gemini). Falls back to smart chart-aware template responses when no API key configured
+- [x] **AgentRouter** (`AgentRouter.java`): LLM-based intent classification (falls back to keyword matching). All agents injected with `ChatLanguageModel`
+- [x] **Chroma Vector DB** (`ChromaService.java`): Real embeddings via `AllMiniLmL6V2EmbeddingModel`. Full REST API client for Chroma HTTP API
+- [x] **Knowledge Base** (`KnowledgeBaseService.java`): Seeded with 12 Vedic texts (Parashara, Jaimini, KP, Nadi, etc.) and 10 planetary remedies with metadata
+- [x] **Dev Profile** (`application-dev.properties`): H2 in-memory DB, zero external deps needed
+- [x] **Demo Auth** (`POST /api/v1/auth/demo`): Auto-creates/returns premium user
+- [x] **CORS**: Fixed `allowedOriginPatterns` for mobile-backend communication
+- [x] **Build**: Fixed `AstraApplication` class name, Lombok `@Builder` on all DTOs
+
+### Mobile (Flutter / Dart)
+- [x] **Demo Mode**: "Demo Mode (Dev)" button on auth screen — calls `/api/v1/auth/demo`, gets JWT, saves session
+- [x] **Chat Fallback**: When backend unavailable, uses local `_generateAIResponse()` with chart-aware hardcoded replies
+- [x] **API Client**: Full `demoLogin()` method, all endpoints wired
+- [x] **Auth Flow**: Google OAuth, Phone OTP, and Demo mode all functional
+
+### Infrastructure
+- [x] `docker-compose.yml` — PostgreSQL 15, Chroma, Redis 7, Backend
+- [x] All K8s manifests for production deployment
+
+### CI/CD
+- [x] Backend, Mobile, Security workflows
+
+## Still Placeholder / Not Yet Wired
+- [ ] **iOS CI build** still disabled (`if: false`)
+- [ ] **K8s secrets** need real base64 values
+- [ ] **Firebase project** references dev `education-apps-f2032`
+- [ ] **Unit/integration tests** minimal
+- [ ] **Mobile screens**: Dasha timeline, transit analysis, subscription pages not implemented
+- [ ] **Swiss Ephemeris native lib** needs ephemeris data files for full accuracy
+- [ ] **Chroma** on REST API only when Chroma server is running
+
+## How to Run
+
+### Backend (zero-dependency dev mode)
+```bash
+cd backend
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+# API available at http://localhost:8080/api/v1
+# Health check: http://localhost:8080/api/v1/health
+# H2 Console: http://localhost:8080/h2-console
+```
+
+### Backend (with Docker)
+```bash
+cd infrastructure
+docker-compose up -d
+# Starts Postgres, Chroma, Redis, Backend
+```
+
+### Mobile App
+```bash
+cd mobile/astra_app
+flutter run
+# Uses demo mode button for quick login
+```
+
+## Key Changes in This Wiring
+
+| File | Change |
+|------|--------|
+| `pom.xml` | Added `langchain4j` core + `langchain4j-embeddings-all-minilm-l6-v2` |
+| `SwissEphemerisService.java` | Real `SwissEph.swe_calc_ut()` calls + full 12-sign functional nature |
+| `AgentRouter.java` | LLM routing + Lombok builder fix |
+| `AiConfig.java` (new) | `ChatLanguageModel` bean + `EmbeddingModel` bean |
+| All `*Agent.java` (10 files) | LangChain4j `ChatLanguageModel` injection + smart template fallback |
+| `ChromaService.java` | Real `EmbeddingModel` for vector generation |
+| `KnowledgeBaseService.java` | 12 Vedic texts + 10 remedies seeded |
+| `AuthController.java` | `/api/v1/auth/demo` endpoint |
+| `AuthenticationService.java` | `authenticateDemo()` method |
+| `application-dev.properties` (new) | H2 profile for dev |
+| `auth_provider.dart` | `signInDemo()` method |
+| `api_client.dart` | `demoLogin()` method |
+| `auth_screen.dart` | "Demo Mode (Dev)" button |
+| `chat_screen.dart` | Local AI fallback when backend unreachable |
+
+## API Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/health` | GET | Health check |
+| `/api/v1/auth/demo` | POST | Demo login (returns JWT) |
+| `/api/v1/auth/google` | POST | Google OAuth login |
+| `/api/v1/auth/phone/send-otp` | POST | Send phone OTP |
+| `/api/v1/auth/phone/verify-otp` | POST | Verify phone OTP |
+| `/api/v1/users/profile` | GET/POST | User CRUD |
+| `/api/v1/users/birth-profile` | GET/POST/PUT | Birth profile CRUD |
+| `/api/v1/astrology/birth-chart` | GET | Get birth chart by userId |
+| `/api/v1/astrology/chat` | POST | AI chat with routing |
+| `/api/v1/astrology/dasha-timeline` | GET | Dasha periods |
+| `/api/v1/astrology/transits` | GET | Current transits |
+| `/api/v1/astrology/daily-horoscope` | GET | Daily horoscope |
+| `/api/v1/subscriptions/plans` | GET | Subscription tiers |

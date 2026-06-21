@@ -4,9 +4,9 @@ import com.astra.ai.vector.KnowledgeBaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class KnowledgeBaseInitializer implements CommandLineRunner {
@@ -18,9 +18,9 @@ public class KnowledgeBaseInitializer implements CommandLineRunner {
         try {
             log.info("Starting knowledge base initialization...");
             knowledgeBaseService.initializeKnowledgeBase();
-            log.info("Knowledge base initialization completed successfully");
+            log.info("Knowledge base initialization completed");
         } catch (Exception e) {
-            log.error("Failed to initialize knowledge base", e);
+            log.warn("Knowledge base initialization skipped (Chroma may not be running): {}", e.getMessage());
         }
     }
 }

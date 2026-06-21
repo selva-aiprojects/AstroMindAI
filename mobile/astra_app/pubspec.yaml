@@ -62,7 +62,6 @@ dependencies:
 
   # Chat Interface
   flutter_chat_ui: ^1.6.9
-  speech_to_text: ^6.5.1
 
   # Storage
   shared_preferences: ^2.2.2
@@ -98,6 +97,8 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/icons/logo.svg
+    - assets/icons/app_icon.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

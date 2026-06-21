@@ -32,21 +32,37 @@ public class DashaCalculator {
             "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"
     };
 
-    public DashaTimeline calculateDashaTimeline(LocalDate birthDate, String moonNakshatra) {
-        log.info("Calculating Dasha timeline for birth date: {}, moon nakshatra: {}", birthDate, moonNakshatra);
+    public DashaTimeline calculateDashaTimeline(LocalDate birthDate, double moonLongitude) {
+        double nakshatraSize = 360.0 / 27.0;
+        int nakshatraIndex = (int) (moonLongitude / nakshatraSize);
+        if (nakshatraIndex < 0) nakshatraIndex = 0;
+        if (nakshatraIndex > 26) nakshatraIndex = 26;
+
+        String[] nakshatras = {
+            "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira",
+            "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha",
+            "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati",
+            "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha",
+            "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada",
+            "Uttara Bhadrapada", "Revati"
+        };
+        String moonNakshatra = nakshatras[nakshatraIndex];
+
+        log.info("Calculating Dasha timeline for birth date: {}, moon longitude: {} ({})", birthDate, moonLongitude, moonNakshatra);
 
         // Get Mahadasha lord based on Moon's Nakshatra
-        String mahadashaLord = getMahadashaLord(moonNakshatra);
+        int lordIndex = nakshatraIndex % 9;
+        String mahadashaLord = NAKSHATRA_DASHA_LORDS[lordIndex];
         
         // Calculate Mahadasha periods
-        List<DashaPeriod> mahadashas = calculateMahadashas(birthDate, mahadashaLord);
+        List<DashaPeriod> mahadashas = calculateMahadashas(birthDate, mahadashaLord, moonLongitude);
         
         // Calculate current active Dasha
         DashaPeriod currentDasha = getCurrentDasha(mahadashas, LocalDate.now());
         
         // Calculate Antardashas for current Mahadasha
         List<DashaPeriod> antardashas = currentDasha != null ? 
-                calculateAntardashas(currentDasha.getStartDate(), currentDasha.getEndDate(), mahadashaLord) : 
+                calculateAntardashas(currentDasha.getStartDate(), currentDasha.getEndDate(), currentDasha.getLord()) : 
                 new ArrayList<>();
         
         // Calculate current Antardasha
@@ -59,6 +75,12 @@ public class DashaCalculator {
                 .antardashas(antardashas)
                 .currentAntardasha(currentAntardasha)
                 .build();
+    }
+
+    public DashaTimeline calculateDashaTimeline(LocalDate birthDate, String moonNakshatra) {
+        int index = getNakshatraIndex(moonNakshatra);
+        double estimatedLongitude = (index + 0.5) * (360.0 / 27.0);
+        return calculateDashaTimeline(birthDate, estimatedLongitude);
     }
 
     private String getMahadashaLord(String moonNakshatra) {
@@ -87,30 +109,36 @@ public class DashaCalculator {
         return 0; // Default to Ashwini
     }
 
-    private List<DashaPeriod> calculateMahadashas(LocalDate birthDate, String startingLord) {
+    private List<DashaPeriod> calculateMahadashas(LocalDate birthDate, String startingLord, double moonLongitude) {
         List<DashaPeriod> mahadashas = new ArrayList<>();
         
-        // Calculate the starting point within the first Mahadasha
-        int nakshatraIndex = getNakshatraIndex("Ashwini"); // Simplified
-        int pada = nakshatraIndex % 9;
-        double padaFraction = (nakshatraIndex % 9) / 9.0;
+        double nakshatraSize = 360.0 / 27.0;
+        int nakshatraIndex = (int) (moonLongitude / nakshatraSize);
+        if (nakshatraIndex < 0) nakshatraIndex = 0;
+        if (nakshatraIndex > 26) nakshatraIndex = 26;
         
-        // Calculate remaining years in first Mahadasha
+        double elapsedLongitude = moonLongitude - (nakshatraIndex * nakshatraSize);
+        double fractionRemaining = 1.0 - (elapsedLongitude / nakshatraSize);
+        if (fractionRemaining < 0) fractionRemaining = 0;
+        if (fractionRemaining > 1) fractionRemaining = 1;
+        
         int totalPeriod = DASHA_PERIODS.get(startingLord);
-        double remainingYears = totalPeriod * (1 - padaFraction);
+        double remainingYears = totalPeriod * fractionRemaining;
         
         LocalDate currentDate = birthDate;
         
         // Add first Mahadasha
+        long remainingDays = (long) (remainingYears * 365.25);
+        LocalDate firstDashaEndDate = birthDate.plusDays(remainingDays);
         mahadashas.add(DashaPeriod.builder()
                 .lord(startingLord)
                 .level("Mahadasha")
                 .startDate(currentDate)
-                .endDate(currentDate.plusYears((long) remainingYears))
+                .endDate(firstDashaEndDate)
                 .years((long) remainingYears)
                 .build());
         
-        currentDate = currentDate.plusYears((long) remainingYears);
+        currentDate = firstDashaEndDate;
         
         // Add remaining Mahadashas in order
         int startIndex = getDashaLordIndex(startingLord);
@@ -131,6 +159,12 @@ public class DashaCalculator {
         }
         
         return mahadashas;
+    }
+
+    private List<DashaPeriod> calculateMahadashas(LocalDate birthDate, String startingLord) {
+        int index = getDashaLordIndex(startingLord);
+        double estimatedLongitude = (index + 0.5) * (360.0 / 27.0);
+        return calculateMahadashas(birthDate, startingLord, estimatedLongitude);
     }
 
     private List<DashaPeriod> calculateAntardashas(LocalDate startDate, LocalDate endDate, String mahadashaLord) {

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/network/api_client.dart';
+import '../../../core/providers/auth_provider.dart';
 
 class ChatMessage {
   final String text;
@@ -59,9 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: _buildMessageList(),
-          ),
+          Expanded(child: _buildMessageList()),
           _buildQuickReplies(),
           _buildInputArea(),
         ],
@@ -229,39 +231,86 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.trim().isEmpty) return;
 
     setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(text: text, isUser: true, timestamp: DateTime.now()),
+      );
       _isTyping = true;
       _messageController.clear();
     });
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 2), () {
+    _sendToBackend(text);
+  }
+
+  Future<void> _sendToBackend(String text) async {
+    final userId = context.read<AuthProvider>().backendUserId;
+    if (userId == null) {
       if (mounted) {
         setState(() {
-          _messages.add(ChatMessage(
-            text: _generateAIResponse(text),
-            isUser: false,
-            timestamp: DateTime.now(),
-          ));
+          _messages.add(
+            ChatMessage(
+              text:
+                  'Please sign in and create a birth profile before chatting.',
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          );
           _isTyping = false;
         });
       }
-    });
+      return;
+    }
+
+    try {
+      final response = await context.read<ApiClient>().sendChatMessage(
+        userId: userId,
+        query: text,
+      );
+      final answer =
+          response['response'] ??
+          response['answer'] ??
+          response['message'] ??
+          response['content'] ??
+          response.toString();
+
+      if (mounted) {
+        setState(() {
+          _messages.add(
+            ChatMessage(
+              text: answer.toString(),
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          );
+          _isTyping = false;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        final fallback = _generateAIResponse(text);
+        setState(() {
+          _messages.add(
+            ChatMessage(
+              text: fallback,
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          );
+          _isTyping = false;
+        });
+      }
+    }
   }
 
   String _generateAIResponse(String query) {
     // In production, call backend API
     // POST /api/v1/astrology/chat
-    
+
     final lowerQuery = query.toLowerCase();
-    
+
     if (lowerQuery.contains('career')) {
       return 'Based on your birth chart, your 10th house is strong, indicating good career prospects. The current Dasha period favors professional growth. Consider focusing on leadership roles and communication-based careers.';
-    } else if (lowerQuery.contains('relationship') || lowerQuery.contains('marriage')) {
+    } else if (lowerQuery.contains('relationship') ||
+        lowerQuery.contains('marriage')) {
       return 'Your 7th house analysis shows favorable conditions for relationships. Venus is well-placed, indicating harmonious partnerships. The current period supports romantic connections.';
     } else if (lowerQuery.contains('finance') || lowerQuery.contains('money')) {
       return 'Your 2nd and 11th houses show good financial potential. Jupiter\'s influence suggests growth in wealth. This is a favorable period for investments and financial planning.';

@@ -1,24 +1,34 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../network/api_client.dart';
 
 class AuthProvider with ChangeNotifier {
+  AuthProvider({required ApiClient apiClient, bool firebaseEnabled = false})
+    : _apiClient = apiClient,
+      _auth = firebaseEnabled ? FirebaseAuth.instance : null {
+    _checkAuthStatus();
+    _loadSession();
+  }
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final ApiClient _apiClient;
   final FirebaseAuth? _auth;
 
   User? _user;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _backendToken;
+  String? _backendUserId;
 
   User? get user => _user;
   bool get isLoading => _isLoading;
-  bool get isAuthenticated => _user != null;
+  bool get isAuthenticated => _backendToken != null;
   String? get errorMessage => _errorMessage;
-
-  AuthProvider({bool firebaseEnabled = false})
-    : _auth = firebaseEnabled ? FirebaseAuth.instance : null {
-    _checkAuthStatus();
-  }
+  String? get backendToken => _backendToken;
+  String? get backendUserId => _backendUserId;
 
   void _checkAuthStatus() {
     final auth = _auth;
@@ -62,13 +72,19 @@ class AuthProvider with ChangeNotifier {
       );
       _user = userCredential.user;
 
-      // In production, call backend API to exchange for JWT token
-      await _exchangeTokenWithBackend(userCredential.user!.uid, 'google');
+      final firebaseUser = userCredential.user!;
+      final response = await _apiClient.authenticateWithGoogle(
+        googleId: firebaseUser.uid,
+        email: firebaseUser.email ?? googleUser.email,
+        name:
+            firebaseUser.displayName ?? googleUser.displayName ?? 'Google User',
+      );
+      await _saveBackendSession(response['token']?.toString());
 
       _setLoading(false);
       return true;
     } catch (e) {
-      _setError('Google sign-in failed: ${e.toString()}');
+      _setError('Google sign-in failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
     }
@@ -79,15 +95,12 @@ class AuthProvider with ChangeNotifier {
     _clearError();
 
     try {
-      // In production, integrate with Firebase Phone Auth
-      // For now, this is a placeholder
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Simulate successful phone auth
+      final response = await _apiClient.verifyOtp(phone: phoneNumber, otp: otp);
+      await _saveBackendSession(response['token']?.toString());
       _setLoading(false);
       return true;
     } catch (e) {
-      _setError('Phone sign-in failed: ${e.toString()}');
+      _setError('Phone sign-in failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
     }
@@ -98,21 +111,30 @@ class AuthProvider with ChangeNotifier {
     _clearError();
 
     try {
-      // In production, integrate with Firebase Phone Auth
-      await Future.delayed(const Duration(seconds: 2));
+      await _apiClient.sendOtp(phoneNumber);
       _setLoading(false);
     } catch (e) {
-      _setError('Failed to send OTP: ${e.toString()}');
+      _setError('Failed to send OTP: ${ApiClient.describeError(e)}');
       _setLoading(false);
     }
   }
 
-  Future<void> _exchangeTokenWithBackend(String userId, String provider) async {
-    // In production, call backend API to exchange Firebase token for JWT
-    // POST /api/v1/auth/google or /api/v1/auth/phone/verify-otp
-    debugPrint(
-      'Exchanging token with backend for user: $userId, provider: $provider',
-    );
+  Future<bool> signInDemo() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Call backend demo endpoint for valid JWT token
+      final response = await _apiClient.demoLogin();
+      await _saveBackendSession(response['token']?.toString());
+      
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Demo login failed: ${ApiClient.describeError(e)}');
+      _setLoading(false);
+      return false;
+    }
   }
 
   Future<void> signOut() async {
@@ -124,10 +146,43 @@ class AuthProvider with ChangeNotifier {
         if (auth != null) auth.signOut(),
       ]);
       _user = null;
+      await _saveBackendSession(null);
       _setLoading(false);
     } catch (e) {
-      _setError('Sign out failed: ${e.toString()}');
+      _setError('Sign out failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
+    }
+  }
+
+  Future<void> _loadSession() async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('backendToken');
+    if (token == null) {
+      return;
+    }
+
+    _backendToken = token;
+    _backendUserId =
+        preferences.getString('backendUserId') ??
+        ApiClient.readUserIdFromJwt(token);
+    _apiClient.setAuthToken(token);
+    notifyListeners();
+  }
+
+  Future<void> _saveBackendSession(String? token) async {
+    final preferences = await SharedPreferences.getInstance();
+    _backendToken = token;
+    _backendUserId = token == null ? null : ApiClient.readUserIdFromJwt(token);
+    _apiClient.setAuthToken(token);
+
+    if (token == null) {
+      await preferences.remove('backendToken');
+      await preferences.remove('backendUserId');
+    } else {
+      await preferences.setString('backendToken', token);
+      if (_backendUserId != null) {
+        await preferences.setString('backendUserId', _backendUserId!);
+      }
     }
   }
 

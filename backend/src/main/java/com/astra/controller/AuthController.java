@@ -77,6 +77,17 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/demo")
+    public ResponseEntity<?> demoLogin() {
+        try {
+            String token = authenticationService.authenticateDemo();
+            return ResponseEntity.ok(Map.of("token", token, "provider", "demo"));
+        } catch (Exception e) {
+            log.error("Demo login failed", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Demo login failed"));
+        }
+    }
+
     @Data
     public static class GoogleAuthRequest {
         private String googleId;

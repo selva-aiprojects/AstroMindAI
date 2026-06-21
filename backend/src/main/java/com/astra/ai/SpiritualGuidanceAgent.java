@@ -2,6 +2,9 @@ package com.astra.ai;
 
 import com.astra.ai.AgentRouter.AgentRequest;
 import com.astra.ai.AgentRouter.AgentResponse;
+import com.astra.astrology.SwissEphemerisService.BirthChart;
+import com.astra.astrology.SwissEphemerisService.PlanetPosition;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,30 +15,40 @@ import java.util.Map;
 @Slf4j
 public class SpiritualGuidanceAgent implements Agent {
 
+    private final ChatLanguageModel chatLanguageModel;
+
+    public SpiritualGuidanceAgent(ChatLanguageModel chatLanguageModel) {
+        this.chatLanguageModel = chatLanguageModel;
+    }
+
     @Override
     public AgentResponse process(AgentRequest request) {
         long startTime = System.currentTimeMillis();
         log.info("Spiritual Guidance Agent processing request for user: {}", request.getUserId());
-        
+
         try {
-            // Extract chart data from context
             Map<String, Object> context = request.getContext();
-            
-            // Generate spiritual guidance
-            String response = generateSpiritualGuidance(context);
-            
+            BirthChart chart = (BirthChart) context.get("chart");
+
+            String response;
+            if (chart != null) {
+                response = generateLLMResponse(request.getQuery(), chart);
+            } else {
+                response = "I need your birth chart data to provide spiritual guidance. Please ensure your birth profile is complete.";
+            }
+
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("category", "spiritual");
-            
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             return AgentResponse.builder()
                     .agentType(getAgentName())
                     .response(response)
                     .metadata(metadata)
                     .processingTimeMs(processingTime)
                     .build();
-                    
+
         } catch (Exception e) {
             log.error("Error in Spiritual Guidance Agent", e);
             return AgentResponse.builder()
@@ -47,55 +60,52 @@ public class SpiritualGuidanceAgent implements Agent {
         }
     }
 
-    private String generateSpiritualGuidance(Map<String, Object> context) {
-        StringBuilder response = new StringBuilder();
-        
-        response.append("🕉️ **Spiritual Guidance**\n\n");
-        
-        response.append("Based on the analysis of your 5th house (Punya Sthana), 9th house (Dharma Sthana), ");
-        response.append("12th house (Moksha Sthana), Atmakaraka, and D20 chart, here are insights for your spiritual journey:\n\n");
-        
-        response.append("**Spiritual Strengths:**\n");
-        response.append("- Your chart indicates strong spiritual potential and inclination.\n");
-        response.append("- Natural interest in philosophical and metaphysical subjects.\n");
-        response.append("- Good intuition and psychic sensitivity.\n");
-        response.append("- Capacity for deep meditation and spiritual practices.\n\n");
-        
-        response.append("**Recommended Spiritual Practices:**\n");
-        response.append("- Meditation: Daily meditation for inner peace and clarity.\n");
-        response.append("- Mantra Chanting: Chant specific mantras for spiritual growth.\n");
-        response.append("- Yoga: Practice yoga for physical and spiritual well-being.\n");
-        response.append("- Prayer: Regular prayer for connection with the divine.\n");
-        response.append("- Study: Read spiritual texts and scriptures.\n\n");
-        
-        response.append("Favorable Spiritual Periods:\n");
-        response.append("- Current Dasha period supports spiritual growth and practices.\n");
-        response.append("- Good time for initiating new spiritual practices.\n");
-        response.append("- Favorable for pilgrimages and spiritual retreats.\n\n");
-        
-        response.append("**Mantra Recommendations:**\n");
-        response.append("- **Gayatri Mantra**: For wisdom and enlightenment.\n");
-        response.append("- **Om Namah Shivaya**: For transformation and liberation.\n");
-        response.append("- **Om Namo Narayana**: For peace and devotion.\n");
-        response.append("- **Mahamrityunjaya Mantra**: For health and protection.\n\n");
-        
-        response.append("**Remedies for Spiritual Growth:**\n");
-        response.append("- Worship your Ishta Devata (personal deity).\n");
-        response.append("- Offer service (Seva) at temples or spiritual centers.\n");
-        response.append("- Practice charity and compassion.\n");
-        response.append("- Observe fasting on auspicious days.\n");
-        response.append("- Perform rituals during favorable planetary periods.\n\n");
-        
-        response.append("**Life Purpose Insights:**\n");
-        response.append("- Your chart suggests a life purpose involving teaching and guiding others.\n");
-        response.append("- Spiritual service and humanitarian work are highlighted.\n");
-        response.append("- Your journey involves balancing material and spiritual life.\n");
-        response.append("- Liberation through selfless service is indicated.\n\n");
-        
-        response.append("💡 *Spiritual growth is a personal journey. These insights are meant to guide and inspire ");
-        response.append("your path. Follow practices that resonate with your heart and intuition.*\n");
-        
-        return response.toString();
+    private String generateLLMResponse(String query, BirthChart chart) {
+        String chartSummary = summarizeChart(chart);
+        try {
+            String prompt = """
+                    You are a Vedic astrology spiritual guide. Analyze the birth chart for spiritual insights.
+                    Focus on: 5th house (Punya Sthana), 9th house (Dharma Sthana), 12th house (Moksha Sthana), Atmakaraka, Ketu.
+                    Keep response to 3-4 paragraphs, warm and inspiring.
+
+                    Birth Chart:
+                    %s
+
+                    User Query: "%s"
+                    """.formatted(chartSummary, query);
+            return chatLanguageModel.generate(prompt);
+        } catch (Exception e) {
+            log.warn("LLM fallback for spiritual: {}", e.getMessage());
+            return templateResponse();
+        }
+    }
+
+    private String templateResponse() {
+        return """
+                Spiritual Guidance
+
+                Your chart shows strong spiritual potential. The 5th and 9th houses indicate favorable conditions for spiritual growth. Natural interest in philosophical subjects and good intuition are indicated.
+
+                Recommended Practices: Daily meditation for inner peace and clarity. Chant mantras for spiritual growth - Gayatri Mantra for wisdom, Om Namah Shivaya for transformation. Practice yoga for physical and spiritual well-being.
+
+                The current Dasha period supports spiritual practices. This is a favorable time for initiating new spiritual practices, pilgrimages, or retreats.
+
+                Your chart suggests a life purpose involving guiding others. Your journey involves balancing material and spiritual life. Follow practices that resonate with your heart and intuition.""";
+    }
+
+    private String summarizeChart(BirthChart chart) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ascendant: ").append(signName(chart.getAscendant())).append("\n");
+        for (Map.Entry<String, PlanetPosition> e : chart.getPlanetaryPositions().entrySet()) {
+            PlanetPosition p = e.getValue();
+            sb.append(e.getKey()).append(": ").append(p.getSign()).append(" House ").append(chart.getHousePlacements().get(e.getKey())).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String signName(double lon) {
+        String[] s = {"Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"};
+        return s[(int)(lon/30)];
     }
 
     @Override

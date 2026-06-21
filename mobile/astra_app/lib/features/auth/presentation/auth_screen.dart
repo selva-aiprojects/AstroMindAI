@@ -46,6 +46,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               child: _AuthPanel(
                                 onGoogle: _handleGoogleSignIn,
                                 onPhone: _handlePhoneSignIn,
+                                onDemo: _handleDemoSignIn,
                               ),
                             ),
                           ],
@@ -58,6 +59,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             _AuthPanel(
                               onGoogle: _handleGoogleSignIn,
                               onPhone: _handlePhoneSignIn,
+                              onDemo: _handleDemoSignIn,
                             ),
                           ],
                         ),
@@ -76,6 +78,15 @@ class _AuthScreenState extends State<AuthScreen> {
       Navigator.pushReplacementNamed(context, '/home');
     } else if (mounted) {
       _showError(authProvider.errorMessage ?? 'Sign in failed');
+    }
+  }
+
+  Future<void> _handleDemoSignIn(AuthProvider authProvider) async {
+    final success = await authProvider.signInDemo();
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else if (mounted) {
+      _showError(authProvider.errorMessage ?? 'Demo login failed');
     }
   }
 
@@ -180,48 +191,86 @@ class _BrandPane extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
-                color: _AuthScreenState._ink,
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [
+                    _AuthScreenState._teal,
+                    _AuthScreenState._amber,
+                    _AuthScreenState._ink,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: _AuthScreenState._teal.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: const Icon(
                 Icons.auto_awesome,
-                color: _AuthScreenState._amber,
-                size: 26,
+                color: Colors.white,
+                size: 32,
               ),
             ),
-            const SizedBox(width: 14),
-            Text(
-              'ASTRA',
-              style: GoogleFonts.playfairDisplay(
-                color: _AuthScreenState._ink,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
+            const SizedBox(width: 16),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AstroMindAI',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.playfairDisplay(
+                      color: _AuthScreenState._ink,
+                      fontSize: compact ? 32 : 36,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '95%+ Accurate Astrology',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      color: _AuthScreenState._teal,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        SizedBox(height: compact ? 28 : 72),
+        SizedBox(height: compact ? 32 : 80),
         Text(
-          'AI Life Intelligence',
+          'AI-Powered Vedic Astrology',
           style: GoogleFonts.playfairDisplay(
             color: _AuthScreenState._ink,
-            fontSize: compact ? 42 : 64,
-            height: 1.02,
-            fontWeight: FontWeight.w700,
+            fontSize: compact ? 44 : 68,
+            height: 1.05,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text(
-            'Personalized astrology, guidance, and daily decisions in one calm workspace.',
+            'Get personalized life insights powered by NASA-accurate planetary calculations and advanced AI.',
             style: GoogleFonts.inter(
               color: _AuthScreenState._muted,
-              fontSize: compact ? 16 : 18,
-              height: 1.6,
+              fontSize: compact ? 16 : 19,
+              height: 1.7,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -237,9 +286,10 @@ class _SignalStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      ('Birth charts', Icons.blur_circular),
-      ('Dasha insights', Icons.timeline),
-      ('Private memory', Icons.lock_outline),
+      ('NASA-Accurate Charts', Icons.public, 'Swiss Ephemeris'),
+      ('AI-Powered Insights', Icons.psychology, 'Advanced LLMs'),
+      ('Vedic Wisdom', Icons.auto_awesome, 'Ancient Knowledge'),
+      ('Personalized Guidance', Icons.person, 'Tailored for You'),
     ];
 
     return Wrap(
@@ -248,24 +298,58 @@ class _SignalStrip extends StatelessWidget {
       children: items
           .map(
             (item) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: const Color(0xFFE7E0D2)),
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    const Color(0xFFF8F6F1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(color: const Color(0xFFE5DED2)),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(item.$2, size: 18, color: _AuthScreenState._teal),
-                  const SizedBox(width: 8),
-                  Text(
-                    item.$1,
-                    style: GoogleFonts.inter(
-                      color: _AuthScreenState._ink,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: _AuthScreenState._teal.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: Icon(item.$2, size: 20, color: _AuthScreenState._teal),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.$1,
+                        style: GoogleFonts.inter(
+                          color: _AuthScreenState._ink,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        item.$3,
+                        style: GoogleFonts.inter(
+                          color: _AuthScreenState._muted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -277,26 +361,27 @@ class _SignalStrip extends StatelessWidget {
 }
 
 class _AuthPanel extends StatelessWidget {
-  const _AuthPanel({required this.onGoogle, required this.onPhone});
+  const _AuthPanel({required this.onGoogle, required this.onPhone, this.onDemo});
 
   final Future<void> Function(AuthProvider authProvider) onGoogle;
   final Future<void> Function(AuthProvider authProvider) onPhone;
+  final Future<void> Function(AuthProvider authProvider)? onDemo;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         return Container(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
             color: _AuthScreenState._panel,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFE5DED2)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 28,
-                offset: const Offset(0, 18),
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 32,
+                offset: const Offset(0, 16),
               ),
             ],
           ),
@@ -305,23 +390,24 @@ class _AuthPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Sign in',
-                style: GoogleFonts.inter(
+                'Welcome Back',
+                style: GoogleFonts.playfairDisplay(
                   color: _AuthScreenState._ink,
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Continue to your Astra account.',
+                'Start your personalized astrology journey today',
                 style: GoogleFonts.inter(
                   color: _AuthScreenState._muted,
-                  fontSize: 14,
+                  fontSize: 15,
                   height: 1.5,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 32),
               _ActionButton(
                 icon: authProvider.isLoading
                     ? const SizedBox(
@@ -346,6 +432,17 @@ class _AuthPanel extends StatelessWidget {
                     ? null
                     : () => onPhone(authProvider),
               ),
+              if (onDemo != null) ...[
+                const SizedBox(height: 12),
+                _ActionButton(
+                  icon: const Icon(Icons.play_circle_outline, size: 20),
+                  label: 'Try Demo Mode',
+                  onPressed: authProvider.isLoading
+                      ? null
+                      : () => onDemo!(authProvider),
+                  isDemo: true,
+                ),
+              ],
               const SizedBox(height: 24),
               const _DividerLabel(),
               const SizedBox(height: 24),
@@ -372,20 +469,37 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.filled = false,
+    this.isDemo = false,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback? onPressed;
   final bool filled;
+  final bool isDemo;
 
   @override
   Widget build(BuildContext context) {
-    final background = filled ? _AuthScreenState._ink : Colors.white;
-    final foreground = filled ? Colors.white : _AuthScreenState._ink;
+    Color background;
+    Color foreground;
+    BorderSide? borderSide;
+
+    if (isDemo) {
+      background = _AuthScreenState._teal.withOpacity(0.1);
+      foreground = _AuthScreenState._teal;
+      borderSide = BorderSide(color: _AuthScreenState._teal.withOpacity(0.3));
+    } else if (filled) {
+      background = _AuthScreenState._ink;
+      foreground = Colors.white;
+      borderSide = BorderSide(color: _AuthScreenState._ink);
+    } else {
+      background = Colors.white;
+      foreground = _AuthScreenState._ink;
+      borderSide = const BorderSide(color: Color(0xFFD8D0C3));
+    }
 
     return SizedBox(
-      height: 52,
+      height: 56,
       child: FilledButton.icon(
         onPressed: onPressed,
         icon: IconTheme.merge(
@@ -395,7 +509,7 @@ class _ActionButton extends StatelessWidget {
         label: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w700,
             color: foreground,
           ),
@@ -404,11 +518,10 @@ class _ActionButton extends StatelessWidget {
           backgroundColor: background,
           disabledBackgroundColor: background.withValues(alpha: 0.55),
           foregroundColor: foreground,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(
-              color: filled ? _AuthScreenState._ink : const Color(0xFFD8D0C3),
-            ),
+            borderRadius: BorderRadius.circular(12),
+            side: borderSide,
           ),
         ),
       ),
