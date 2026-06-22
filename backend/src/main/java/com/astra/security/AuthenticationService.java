@@ -80,6 +80,33 @@ public class AuthenticationService {
         throw new RuntimeException("Invalid token");
     }
 
+    public String registerWithEmail(String email, String password) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("User with email already exists");
+        }
+        
+        User user = new User();
+        user.setEmail(email);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setAuthProvider(User.AuthProvider.EMAIL);
+        user.setSubscriptionTier(User.SubscriptionTier.FREE);
+        user.setIsActive(true);
+        user = userRepository.save(user);
+        
+        return jwtTokenProvider.generateToken(user.getUserId(), user.getEmail());
+    }
+
+    public String loginWithEmail(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+        
+        return jwtTokenProvider.generateToken(user.getUserId(), user.getEmail());
+    }
+
     public String authenticateDemo() {
         Optional<User> existingUser = userRepository.findByEmail("demo@astromindai.app");
 

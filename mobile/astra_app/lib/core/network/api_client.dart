@@ -114,6 +114,28 @@ class ApiClient {
     return response.data ?? {};
   }
 
+  Future<Map<String, dynamic>> registerWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/register',
+      data: {'email': email, 'password': password},
+    );
+    return response.data ?? {};
+  }
+
+  Future<Map<String, dynamic>> loginWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/login',
+      data: {'email': email, 'password': password},
+    );
+    return response.data ?? {};
+  }
+
   Future<Map<String, dynamic>> demoLogin() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/auth/demo',

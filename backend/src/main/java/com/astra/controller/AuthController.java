@@ -88,6 +88,34 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody EmailAuthRequest request) {
+        try {
+            String token = authenticationService.registerWithEmail(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(Map.of("token", token, "provider", "email"));
+        } catch (Exception e) {
+            log.error("Registration failed", e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody EmailAuthRequest request) {
+        try {
+            String token = authenticationService.loginWithEmail(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(Map.of("token", token, "provider", "email"));
+        } catch (Exception e) {
+            log.error("Login failed", e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Data
+    public static class EmailAuthRequest {
+        private String email;
+        private String password;
+    }
+
     @Data
     public static class GoogleAuthRequest {
         private String googleId;

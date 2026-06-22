@@ -76,8 +76,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 SizedBox(
                                   width: 440,
                                   child: _AuthPanel(
-                                    onGoogle: _handleGoogleSignIn,
-                                    onPhone: _handlePhoneSignIn,
+                                    onEmailLogin: _handleEmailLogin,
+                                    onEmailRegister: _handleEmailRegister,
                                     onDemo: _handleDemoSignIn,
                                   ),
                                 ),
@@ -89,8 +89,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                 const _BrandPane(compact: true),
                                 const SizedBox(height: 40),
                                 _AuthPanel(
-                                  onGoogle: _handleGoogleSignIn,
-                                  onPhone: _handlePhoneSignIn,
+                                  onEmailLogin: _handleEmailLogin,
+                                  onEmailRegister: _handleEmailRegister,
                                   onDemo: _handleDemoSignIn,
                                 ),
                                 const SizedBox(height: 32),
@@ -107,13 +107,160 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     );
   }
 
-  Future<void> _handleGoogleSignIn(AuthProvider authProvider) async {
-    final success = await authProvider.signInWithGoogle();
-    if (success && mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (mounted) {
-      _showError(authProvider.errorMessage ?? 'Sign in failed');
-    }
+  Future<void> _handleEmailLogin(AuthProvider authProvider) async {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF131A2A),
+        title: Text('Sign In', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Email',
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.email_outlined, color: _primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: _primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Password',
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.lock_outline, color: _primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: _primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: _primary),
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final success = await authProvider.loginWithEmail(
+                emailController.text,
+                passwordController.text,
+              );
+              if (success && mounted) {
+                Navigator.pushReplacementNamed(context, '/home');
+              } else if (mounted) {
+                _showError(authProvider.errorMessage ?? 'Login failed');
+              }
+            },
+            child: const Text('Sign In'),
+          ),
+        ],
+      ),
+    );
+
+    emailController.dispose();
+    passwordController.dispose();
+  }
+
+  Future<void> _handleEmailRegister(AuthProvider authProvider) async {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF131A2A),
+        title: Text('Create Account', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Email',
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.email_outlined, color: _primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: _primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Password',
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.lock_outline, color: _primary),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: _primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: _primary),
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final success = await authProvider.registerWithEmail(
+                emailController.text,
+                passwordController.text,
+              );
+              if (success && mounted) {
+                Navigator.pushReplacementNamed(context, '/home');
+              } else if (mounted) {
+                _showError(authProvider.errorMessage ?? 'Registration failed');
+              }
+            },
+            child: const Text('Create Account'),
+          ),
+        ],
+      ),
+    );
+
+    emailController.dispose();
+    passwordController.dispose();
   }
 
   Future<void> _handleDemoSignIn(AuthProvider authProvider) async {
@@ -123,100 +270,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     } else if (mounted) {
       _showError(authProvider.errorMessage ?? 'Demo login failed');
     }
-  }
-
-  Future<void> _handlePhoneSignIn(AuthProvider authProvider) async {
-    final phoneController = TextEditingController();
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Enter phone number', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: TextField(
-          controller: phoneController,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            hintText: '+1 234 567 8900',
-            prefixIcon: const Icon(Icons.phone_outlined, color: _primary),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: _primary, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Cancel', style: GoogleFonts.inter(color: _muted)),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _primary),
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await authProvider.sendOtp(phoneController.text);
-              if (mounted) {
-                _showOtpDialog(authProvider, phoneController.text);
-              }
-            },
-            child: const Text('Send OTP'),
-          ),
-        ],
-      ),
-    );
-
-    phoneController.dispose();
-  }
-
-  void _showOtpDialog(AuthProvider authProvider, String phoneNumber) {
-    final otpController = TextEditingController();
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Enter OTP', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: TextField(
-          controller: otpController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: '123456',
-            prefixIcon: const Icon(Icons.sms_outlined, color: _primary),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: _primary, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Cancel', style: GoogleFonts.inter(color: _muted)),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _primary),
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              final success = await authProvider.signInWithPhone(
-                phoneNumber,
-                otpController.text,
-              );
-              otpController.dispose();
-              if (success && mounted) {
-                Navigator.pushReplacementNamed(context, '/home');
-              }
-            },
-            child: const Text('Verify'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showError(String message) {
@@ -383,10 +436,10 @@ class _BrandPane extends StatelessWidget {
 }
 
 class _AuthPanel extends StatelessWidget {
-  const _AuthPanel({required this.onGoogle, required this.onPhone, this.onDemo});
+  const _AuthPanel({required this.onEmailLogin, required this.onEmailRegister, this.onDemo});
 
-  final Future<void> Function(AuthProvider authProvider) onGoogle;
-  final Future<void> Function(AuthProvider authProvider) onPhone;
+  final Future<void> Function(AuthProvider authProvider) onEmailLogin;
+  final Future<void> Function(AuthProvider authProvider) onEmailRegister;
   final Future<void> Function(AuthProvider authProvider)? onDemo;
 
   @override
@@ -440,18 +493,18 @@ class _AuthPanel extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Icon(Icons.g_mobiledata, size: 28),
+                        : const Icon(Icons.email_outlined, size: 28),
                     label: authProvider.isLoading
                         ? 'Signing in...'
-                        : 'Continue with Google',
-                    onPressed: authProvider.isLoading ? null : () => onGoogle(authProvider),
+                        : 'Continue with Email',
+                    onPressed: authProvider.isLoading ? null : () => onEmailLogin(authProvider),
                     isPrimary: true,
                   ),
                   const SizedBox(height: 16),
                   _PremiumButton(
-                    icon: const Icon(Icons.phone_outlined, size: 20),
-                    label: 'Continue with Phone',
-                    onPressed: authProvider.isLoading ? null : () => onPhone(authProvider),
+                    icon: const Icon(Icons.person_add_outlined, size: 20),
+                    label: 'Create Account',
+                    onPressed: authProvider.isLoading ? null : () => onEmailRegister(authProvider),
                     isPrimary: false,
                   ),
                   if (onDemo != null) ...[

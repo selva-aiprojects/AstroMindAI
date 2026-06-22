@@ -97,6 +97,38 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> registerWithEmail(String email, String password) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final response = await _apiClient.registerWithEmail(email: email, password: password);
+      await _saveBackendSession(response['token']?.toString());
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Registration failed: ${ApiClient.describeError(e)}');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> loginWithEmail(String email, String password) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final response = await _apiClient.loginWithEmail(email: email, password: password);
+      await _saveBackendSession(response['token']?.toString());
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Login failed: ${ApiClient.describeError(e)}');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<bool> signInWithPhone(String phoneNumber, String otp) async {
     _setLoading(true);
     _clearError();
