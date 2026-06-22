@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'tabs/dashboard_tab.dart';
+import 'tabs/insights_tab.dart';
 import 'tabs/profile_tab.dart';
 import '../../chat/presentation/chat_screen.dart';
 
@@ -16,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _tabs = [
     const DashboardTab(),
+    const InsightsTab(),
     const ChatScreen(),
     const ProfileTab(),
   ];
@@ -50,6 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.home_outlined, color: Color(0xB3FFFFFF)),
               selectedIcon: Icon(Icons.home, color: Color(0xFFFFD700)),
               label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.auto_awesome_outlined, color: Color(0xB3FFFFFF)),
+              selectedIcon: Icon(Icons.auto_awesome, color: Color(0xFFFFD700)),
+              label: 'Insights',
             ),
             NavigationDestination(
               icon: Icon(Icons.chat_bubble_outline, color: Color(0xB3FFFFFF)),

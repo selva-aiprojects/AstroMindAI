@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/providers/auth_provider.dart';
+import '../../../auth/presentation/auth_screen.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -102,7 +103,15 @@ class ProfileTab extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: OutlinedButton.icon(
-              onPressed: () => authProvider.signOut(),
+              onPressed: () async {
+                await authProvider.signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const AuthScreen()),
+                    (route) => false,
+                  );
+                }
+              },
               icon: const Icon(Icons.logout),
               label: const Text('Sign Out'),
               style: OutlinedButton.styleFrom(

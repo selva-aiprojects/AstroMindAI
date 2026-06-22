@@ -300,6 +300,59 @@ public class AstrologyController {
         return (planetaryAccuracy * 0.5) + (houseAccuracy * 0.3) + (ayanamsaValid * 0.2);
     }
 
+    @GetMapping("/current-situation")
+    public ResponseEntity<?> getCurrentSituation(@RequestParam UUID userId) {
+        try {
+            BirthProfile birthProfile = birthProfileService.getBirthProfileByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Birth profile not found"));
+
+            // Calculate natal chart
+            SwissEphemerisService.BirthChart natalChart = swissEphemerisService.calculateBirthChart(
+                    birthProfile.getBirthDate(),
+                    birthProfile.getBirthTime(),
+                    birthProfile.getBirthLatitude().doubleValue(),
+                    birthProfile.getBirthLongitude().doubleValue(),
+                    birthProfile.getTimezone(),
+                    birthProfile.getAyanamsa()
+            );
+
+            // Calculate current transits
+            TransitCalculator.TransitAnalysis transits = transitCalculator.calculateTransits(
+                    LocalDate.now(),
+                    natalChart.getPlanetaryPositions()
+            );
+
+            // Prepare context with birth data and transits
+            Map<String, Object> context = new HashMap<>();
+            context.put("birthDate", birthProfile.getBirthDate());
+            context.put("birthTime", birthProfile.getBirthTime());
+            context.put("chart", natalChart);
+            context.put("transits", transits);
+
+            // Query agents
+            Map<String, String> summaries = new HashMap<>();
+            String[] agentsToQuery = {"career_guidance", "marriage_guidance", "finance_guidance", "health_guidance"};
+            String[] keys = {"career", "marriage", "finance", "health"};
+            
+            String prompt = "Analyze my current planetary transits. Provide my current situation regarding %s. Format your response strictly as a bulleted list with three sections: 1. Current Trend, 2. Lucks & Hurdles, 3. Upcoming Changes.";
+
+            for (int i = 0; i < agentsToQuery.length; i++) {
+                AgentRouter.AgentRequest agentRequest = AgentRouter.AgentRequest.builder()
+                        .userId(userId.toString())
+                        .query(String.format(prompt, keys[i]))
+                        .context(context)
+                        .build();
+                AgentRouter.AgentResponse response = agentRouter.routeToAgent(agentsToQuery[i], agentRequest);
+                summaries.put(keys[i], response.getResponse());
+            }
+
+            return ResponseEntity.ok(summaries);
+        } catch (Exception e) {
+            log.error("Error generating current situation", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to generate current situation: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/life-summary")
     public ResponseEntity<?> getLifeSummary(@RequestParam UUID userId) {
         try {

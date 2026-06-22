@@ -17,14 +17,15 @@ class ApiClient {
 
   static const String _configuredBaseUrl = String.fromEnvironment(
     'BACKEND_BASE_URL',
+    defaultValue: const String.fromEnvironment('API_BASE_URL'),
   );
 
   static String get _defaultBaseUrl {
     if (_configuredBaseUrl.isNotEmpty) {
       return _configuredBaseUrl;
     }
-    // Hardcoding the production Render URL for the APK build
-    return 'https://astromindai-backend.onrender.com/api/v1';
+    // Hardcoding localhost for testing. Replace with production URL before release.
+    return 'http://localhost:8080/api/v1';
   }
 
   final String baseUrl;
@@ -154,6 +155,14 @@ class ApiClient {
   Future<Map<String, dynamic>> getBirthProfile(String userId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/users/birth-profile',
+      queryParameters: {'userId': userId},
+    );
+    return response.data ?? {};
+  }
+
+  Future<Map<String, dynamic>> getCurrentSituation(String userId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/astrology/current-situation',
       queryParameters: {'userId': userId},
     );
     return response.data ?? {};

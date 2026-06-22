@@ -248,7 +248,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 passwordController.text,
               );
               if (success && mounted) {
-                Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pushReplacementNamed(context, '/birth-profile');
               } else if (mounted) {
                 _showError(authProvider.errorMessage ?? 'Registration failed');
               }

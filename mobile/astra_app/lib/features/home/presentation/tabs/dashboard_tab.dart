@@ -1,13 +1,19 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../core/providers/auth_provider.dart';
+import '../../../auth/presentation/auth_screen.dart';
 
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
+    return Focus(
+      autofocus: true,
+      child: CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
           child: Container(
@@ -54,23 +60,34 @@ class DashboardTab extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        radius: 26,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: Color(0xFFFFD700), size: 28),
+                      GestureDetector(
+                      onTap: () async {
+                        await context.read<AuthProvider>().signOut();
+                        if (context.mounted) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const AuthScreen()),
+                            (route) => false,
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: const CircleAvatar(
+                          radius: 26,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.logout, color: Color(0xFFFFD700), size: 28),
+                        ),
                       ),
                     ),
                   ],
@@ -162,6 +179,7 @@ class DashboardTab extends StatelessWidget {
         ),
         const SliverPadding(padding: EdgeInsets.only(bottom: 40)),
       ],
+    ),
     );
   }
 }

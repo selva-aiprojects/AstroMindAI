@@ -180,10 +180,16 @@ class AuthProvider with ChangeNotifier {
     _setLoading(true);
     try {
       final auth = _auth;
-      await Future.wait([
-        _googleSignIn.signOut(),
-        if (auth != null) auth.signOut(),
-      ]);
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+      
+      if (auth != null) {
+        try {
+          await auth.signOut();
+        } catch (_) {}
+      }
+      
       _user = null;
       await _saveBackendSession(null);
       _setLoading(false);
