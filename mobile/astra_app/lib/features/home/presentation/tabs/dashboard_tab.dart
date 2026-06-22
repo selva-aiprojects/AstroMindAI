@@ -15,8 +15,8 @@ class DashboardTab extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFE65100), // Saffron
-                  Color(0xFFFFB300), // Gold
+                  Color(0xFFFFD700), // Saffron
+                  Color(0xFF9D4EDD), // Gold
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -61,7 +61,7 @@ class DashboardTab extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFE65100).withValues(alpha: 0.2),
+                            color: const Color(0xFFFFD700).withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           )
@@ -70,7 +70,7 @@ class DashboardTab extends StatelessWidget {
                       child: const CircleAvatar(
                         radius: 26,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: Color(0xFFE65100), size: 28),
+                        child: Icon(Icons.person, color: Color(0xFFFFD700), size: 28),
                       ),
                     ),
                   ],
@@ -125,21 +125,21 @@ class DashboardTab extends StatelessWidget {
                 title: 'Birth Profile',
                 subtitle: 'Manage Details',
                 icon: Icons.person_add_alt_1,
-                iconColor: const Color(0xFFE65100),
+                iconColor: const Color(0xFFFFD700),
                 onTap: () => Navigator.pushNamed(context, '/birth-profile'),
               ),
               _DashboardCard(
                 title: 'Free Kundli',
                 subtitle: 'Birth Chart',
                 icon: Icons.auto_graph,
-                iconColor: const Color(0xFF8D6E63),
+                iconColor: const Color(0xB3FFFFFF),
                 onTap: () => Navigator.pushNamed(context, '/birth-chart'),
               ),
               _DashboardCard(
                 title: 'Daily Horoscope',
                 subtitle: 'Predictions',
                 icon: Icons.auto_awesome,
-                iconColor: const Color(0xFFE65100),
+                iconColor: const Color(0xFFFFD700),
                 onTap: () {
                    ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Coming soon!')),
@@ -150,7 +150,7 @@ class DashboardTab extends StatelessWidget {
                 title: 'Panchang',
                 subtitle: 'Daily Almanac',
                 icon: Icons.calendar_month,
-                iconColor: const Color(0xFF8D6E63),
+                iconColor: const Color(0xB3FFFFFF),
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Coming soon!')),
@@ -185,12 +185,12 @@ class _DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF131A2A),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE5DED2)),
+        border: Border.all(color: const Color(0x3DFFFFFF)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3E2723).withValues(alpha: 0.04),
+            color: const Color(0xFFFFFFFF).withValues(alpha: 0.04),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -220,7 +220,7 @@ class _DashboardCard extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF3E2723),
+                    color: const Color(0xFFFFFFFF),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -229,7 +229,7 @@ class _DashboardCard extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF8D6E63),
+                    color: const Color(0xB3FFFFFF),
                   ),
                 ),
               ],

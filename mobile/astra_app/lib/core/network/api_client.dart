@@ -9,8 +9,8 @@ class ApiClient {
       _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl ?? _defaultBaseUrl,
-          connectTimeout: const Duration(seconds: 60),
-          receiveTimeout: const Duration(seconds: 60),
+          connectTimeout: const Duration(seconds: 120),
+          receiveTimeout: const Duration(seconds: 120),
           headers: {'Content-Type': 'application/json'},
         ),
       );
@@ -23,13 +23,8 @@ class ApiClient {
     if (_configuredBaseUrl.isNotEmpty) {
       return _configuredBaseUrl;
     }
-    if (kIsWeb) return 'http://localhost:8080/api/v1';
-    
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080/api/v1';
-    }
-    
-    return 'http://localhost:8080/api/v1';
+    // Hardcoding the production Render URL for the APK build
+    return 'https://astromindai-backend.onrender.com/api/v1';
   }
 
   final String baseUrl;

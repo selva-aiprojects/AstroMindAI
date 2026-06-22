@@ -30,8 +30,8 @@ class ProfileTab extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 50,
-                  backgroundColor: Color(0xFFFFF3E0),
-                  child: Icon(Icons.person, size: 50, color: Colors.orange),
+                  backgroundColor: Color(0xFF1A0B2E),
+                  child: Icon(Icons.person, size: 50, color: Color(0xFFFFD700)),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -39,7 +39,7 @@ class ProfileTab extends StatelessWidget {
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1F1D2B),
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -47,8 +47,8 @@ class ProfileTab extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: authProvider.backendUserId == null 
-                        ? Colors.red.shade50 
-                        : Colors.green.shade50,
+                        ? Colors.red.withOpacity(0.1) 
+                        : Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -59,8 +59,8 @@ class ProfileTab extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: authProvider.backendUserId == null 
-                          ? Colors.red.shade700 
-                          : Colors.green.shade700,
+                          ? Colors.redAccent 
+                          : Colors.greenAccent,
                     ),
                   ),
                 ),
@@ -106,7 +106,7 @@ class ProfileTab extends StatelessWidget {
               icon: const Icon(Icons.logout),
               label: const Text('Sign Out'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red.shade700,
+                foregroundColor: Colors.redAccent,
                 side: BorderSide(color: Colors.red.shade200),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -142,20 +142,20 @@ class _ProfileMenuItem extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Color(0xFF131A2A),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: const Color(0xFF6F6A7A)),
+        child: Icon(icon, color: Colors.white70),
       ),
       title: Text(
         title,
         style: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF1F1D2B),
+          color: Colors.white,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Color(0xFF6F6A7A)),
+      trailing: const Icon(Icons.chevron_right, color: Colors.white70),
       onTap: onTap,
     );
   }

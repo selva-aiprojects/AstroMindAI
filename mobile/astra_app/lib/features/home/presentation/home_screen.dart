@@ -23,13 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7), // Warm white background matching Auth
+      backgroundColor: const Color(0xFF0B0F19), // Warm white background matching Auth
       body: _tabs[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFE65100).withValues(alpha: 0.05),
+              color: const Color(0xFFFFD700).withValues(alpha: 0.05),
               blurRadius: 24,
               offset: const Offset(0, -8),
             ),
@@ -42,23 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
               _currentIndex = index;
             });
           },
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFF0B0F19),
           elevation: 0,
-          indicatorColor: const Color(0xFFE65100).withValues(alpha: 0.1),
+          indicatorColor: const Color(0xFFFFD700).withValues(alpha: 0.1),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined, color: Color(0xFF8D6E63)),
-              selectedIcon: Icon(Icons.home, color: Color(0xFFE65100)),
+              icon: Icon(Icons.home_outlined, color: Color(0xB3FFFFFF)),
+              selectedIcon: Icon(Icons.home, color: Color(0xFFFFD700)),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline, color: Color(0xFF8D6E63)),
-              selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFFE65100)),
+              icon: Icon(Icons.chat_bubble_outline, color: Color(0xB3FFFFFF)),
+              selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFFFFD700)),
               label: 'AI Chat',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline, color: Color(0xFF8D6E63)),
-              selectedIcon: Icon(Icons.person, color: Color(0xFFE65100)),
+              icon: Icon(Icons.person_outline, color: Color(0xB3FFFFFF)),
+              selectedIcon: Icon(Icons.person, color: Color(0xFFFFD700)),
               label: 'Profile',
             ),
           ],

@@ -106,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               message.text,
               style: GoogleFonts.inter(
-                color: message.isUser ? Colors.white : Colors.black87,
+                color: message.isUser ? Colors.white : Colors.white,
                 fontSize: 14,
               ),
             ),
@@ -114,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               _formatTime(message.timestamp),
               style: GoogleFonts.inter(
-                color: message.isUser ? Colors.white70 : Colors.grey.shade600,
+                color: message.isUser ? Colors.white70 : Colors.white70,
                 fontSize: 10,
               ),
             ),
@@ -153,7 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: Colors.grey.shade600,
+        color: Colors.white70,
         shape: BoxShape.circle,
       ),
     );

@@ -40,30 +40,34 @@ class AstraApp extends StatelessWidget {
         title: 'AstroMindAI - AI Life Intelligence',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.orange,
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFE65100),
-            primary: const Color(0xFFE65100),
-            secondary: const Color(0xFFFFB300),
-            tertiary: const Color(0xFFF57C00),
+            seedColor: const Color(0xFF2A0B4C), // Deep Purple
+            primary: const Color(0xFF2A0B4C),
+            secondary: const Color(0xFFFFD700), // Neon Gold
+            tertiary: const Color(0xFF5E2CA5),  // Vibrant Purple
+            background: const Color(0xFFF8F9FA),
             brightness: Brightness.light,
           ),
           textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         ),
         darkTheme: ThemeData(
-          primarySwatch: Colors.orange,
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFE65100),
-            primary: const Color(0xFFFF9800),
-            secondary: const Color(0xFFFFC107),
-            tertiary: const Color(0xFFFFB74D),
+            seedColor: const Color(0xFF0B0F19), // Midnight Blue
+            primary: const Color(0xFFFFD700),   // Neon Gold (pops on dark background)
+            secondary: const Color(0xFF9D4EDD), // Bright Purple
+            tertiary: const Color(0xFF5E2CA5),
+            background: const Color(0xFF0B0F19),
+            surface: const Color(0xFF131A2A),
             brightness: Brightness.dark,
           ),
-          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
+          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme).apply(
+            bodyColor: Colors.white,
+            displayColor: Colors.white,
+          ),
         ),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.dark, // Defaulting to dark mode for the cosmic feel
         home: const AuthScreen(),
         routes: {
           '/home': (_) => const HomeScreen(),

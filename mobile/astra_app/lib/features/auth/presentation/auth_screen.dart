@@ -16,10 +16,10 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
   late AnimationController _bgController;
 
-  static const _ink = Color(0xFF3E2723); 
-  static const _muted = Color(0xFF8D6E63);
-  static const _primary = Color(0xFFE65100); 
-  static const _accent = Color(0xFFFFB300); 
+  static const _ink = Color(0xFFFFFFFF); 
+  static const _muted = Color(0xB3FFFFFF);
+  static const _primary = Color(0xFFFFD700); 
+  static const _accent = Color(0xFF9D4EDD); 
 
   @override
   void initState() {
@@ -39,7 +39,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7),
+      backgroundColor: const Color(0xFF0B0F19),
       body: Stack(
         children: [
           // Animated Background
@@ -249,8 +249,8 @@ class _MysticBackgroundPainter extends CustomPainter {
       ),
       radius: 1.5,
       colors: const [
-        Color(0xFFFFF3E0), // Soft orange tint
-        Color(0xFFFDFBF7), // Warm white
+        Color(0xFF1A0B2E), // Deep cosmic purple (instead of beige)
+        Color(0xFF0B0F19), // Midnight blue
       ],
       stops: const [0.0, 1.0],
     );
@@ -260,7 +260,7 @@ class _MysticBackgroundPainter extends CustomPainter {
     // Draw some subtle glowing orbs
     final orbPaint = Paint()
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 80)
-      ..color = const Color(0xFFFFB300).withValues(alpha: 0.15); // Soft gold
+      ..color = const Color(0xFF9D4EDD).withValues(alpha: 0.15); // Soft gold
 
     final center1 = Offset(
       size.width * (0.5 + math.cos(animationValue * math.pi * 2) * 0.3),
@@ -270,7 +270,7 @@ class _MysticBackgroundPainter extends CustomPainter {
 
     final orbPaint2 = Paint()
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 100)
-      ..color = const Color(0xFFE65100).withValues(alpha: 0.1); // Soft saffron
+      ..color = const Color(0xFFFFD700).withValues(alpha: 0.1); // Soft saffron
 
     final center2 = Offset(
       size.width * (0.2 + math.sin(animationValue * math.pi * 2) * 0.4),
@@ -302,14 +302,14 @@ class _BrandPane extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFE65100), Color(0xFFFFB300)],
+                  colors: [Color(0xFFFFD700), Color(0xFF9D4EDD)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFE65100).withValues(alpha: 0.3),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -331,7 +331,7 @@ class _BrandPane extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.playfairDisplay(
-                      color: const Color(0xFF3E2723),
+                      color: const Color(0xFFFFFFFF),
                       fontSize: compact ? 28 : 36,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
@@ -343,7 +343,7 @@ class _BrandPane extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      color: const Color(0xFFE65100),
+                      color: const Color(0xFFFFD700),
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 2.0,
@@ -358,7 +358,7 @@ class _BrandPane extends StatelessWidget {
         Text(
           'Discover Your Cosmic Blueprint.',
           style: GoogleFonts.playfairDisplay(
-            color: const Color(0xFF3E2723),
+            color: const Color(0xFFFFFFFF),
             fontSize: compact ? 40 : 64,
             height: 1.1,
             fontWeight: FontWeight.w800,
@@ -370,7 +370,7 @@ class _BrandPane extends StatelessWidget {
           child: Text(
             'Experience highly accurate, personalized life insights powered by NASA-precision planetary mathematics and advanced artificial intelligence.',
             style: GoogleFonts.inter(
-              color: const Color(0xFF8D6E63),
+              color: const Color(0xB3FFFFFF),
               fontSize: compact ? 16 : 18,
               height: 1.6,
               fontWeight: FontWeight.w400,
@@ -400,12 +400,12 @@ class _AuthPanel extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(40),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: const Color(0xFF131A2A).withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+                border: Border.all(color: const Color(0xFF9D4EDD).withValues(alpha: 0.3), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFE65100).withValues(alpha: 0.05),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.05),
                     blurRadius: 40,
                     offset: const Offset(0, 20),
                   ),
@@ -418,7 +418,7 @@ class _AuthPanel extends StatelessWidget {
                   Text(
                     'Welcome Back',
                     style: GoogleFonts.playfairDisplay(
-                      color: const Color(0xFF3E2723),
+                      color: const Color(0xFFFFFFFF),
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
                     ),
@@ -427,7 +427,7 @@ class _AuthPanel extends StatelessWidget {
                   Text(
                     'Please sign in to continue your journey.',
                     style: GoogleFonts.inter(
-                      color: const Color(0xFF8D6E63),
+                      color: const Color(0xB3FFFFFF),
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
                     ),
@@ -496,7 +496,7 @@ class _PremiumButton extends StatelessWidget {
       return TextButton.icon(
         onPressed: onPressed,
         icon: IconTheme.merge(
-          data: const IconThemeData(color: Color(0xFFE65100)),
+          data: const IconThemeData(color: Color(0xFFFFD700)),
           child: icon,
         ),
         label: Text(
@@ -504,7 +504,7 @@ class _PremiumButton extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFFE65100),
+            color: const Color(0xFFFFD700),
           ),
         ),
       );
@@ -516,17 +516,17 @@ class _PremiumButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         gradient: isPrimary
             ? const LinearGradient(
-                colors: [Color(0xFFE65100), Color(0xFFF57C00)],
+                colors: [Color(0xFFFFD700), Color(0xFF5E2CA5)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               )
             : null,
-        color: isPrimary ? null : Colors.white,
-        border: isPrimary ? null : Border.all(color: const Color(0xFFE5DED2)),
+        color: isPrimary ? null : const Color(0xFF131A2A),
+        border: isPrimary ? null : Border.all(color: const Color(0x3DFFFFFF)),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: const Color(0xFFE65100).withValues(alpha: 0.3),
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -548,7 +548,7 @@ class _PremiumButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconTheme.merge(
-                data: IconThemeData(color: isPrimary ? Colors.white : const Color(0xFF3E2723)),
+                data: IconThemeData(color: isPrimary ? Colors.white : const Color(0xFFFFFFFF)),
                 child: icon,
               ),
               const SizedBox(width: 12),
@@ -557,7 +557,7 @@ class _PremiumButton extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isPrimary ? Colors.white : const Color(0xFF3E2723),
+                  color: isPrimary ? Colors.white : const Color(0xFFFFFFFF),
                 ),
               ),
             ],
@@ -575,20 +575,20 @@ class _DividerLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: Color(0xFFE5DED2))),
+        const Expanded(child: Divider(color: Color(0x3DFFFFFF))),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'OR PREVIEW APP',
             style: GoogleFonts.inter(
-              color: const Color(0xFF8D6E63),
+              color: const Color(0xB3FFFFFF),
               fontSize: 11,
               letterSpacing: 1.5,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: Color(0xFFE5DED2))),
+        const Expanded(child: Divider(color: Color(0x3DFFFFFF))),
       ],
     );
   }

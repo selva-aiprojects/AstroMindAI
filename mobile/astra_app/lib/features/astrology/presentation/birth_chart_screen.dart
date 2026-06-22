@@ -106,9 +106,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: const Color(0xFF0B0F19),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFE65100),
+          backgroundColor: const Color(0xFFFFD700),
           title: Text(
             'Birth Chart Dashboard',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
@@ -131,9 +131,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
     if (errorMessage != null) {
       return Scaffold(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: const Color(0xFF0B0F19),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFE65100),
+          backgroundColor: const Color(0xFFFFD700),
           title: Text(
             'Birth Chart Dashboard',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
@@ -169,9 +169,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: const Color(0xFF0B0F19),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFE65100),
+          backgroundColor: const Color(0xFFFFD700),
           iconTheme: const IconThemeData(color: Colors.white),
           title: Text(
             'Astro Intelligence',
@@ -385,7 +385,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [Color(0xFFE65100), Color(0xFFE65100)],
+            colors: [Color(0xFFFFD700), Color(0xFFFFD700)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -744,7 +744,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                                     ? const Color(0xFFE0A640)
                                     : Theme.of(context).brightness == Brightness.dark
                                         ? Colors.white
-                                        : Colors.black87,
+                                        : Colors.white,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -790,7 +790,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.person, color: Color(0xFFE65100), size: 24),
+                const Icon(Icons.person, color: Color(0xFFFFD700), size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'Birth Details',
@@ -826,7 +826,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Color(0xFF8D6E63), size: 24),
+                const Icon(Icons.info_outline, color: Color(0xB3FFFFFF), size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'Chart Information',
