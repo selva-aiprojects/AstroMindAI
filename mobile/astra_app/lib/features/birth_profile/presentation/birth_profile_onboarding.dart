@@ -52,6 +52,8 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
     'bhopal': [23.2599, 77.4126],
     'indore': [22.7196, 75.8577],
     'chandigarh': [30.7333, 76.7794],
+    'madurai': [9.9252, 78.1198],
+    'coimbatore': [11.0168, 76.9558],
     'london': [51.5074, -0.1278],
     'new york': [40.7128, -74.0060],
     'san francisco': [37.7749, -122.4194],
@@ -100,9 +102,9 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF3E0),
+      backgroundColor: const Color(0xFFFDFBF7),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF3E2723)),
@@ -111,9 +113,9 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
         title: Text(
           'Create Birth Profile',
           style: GoogleFonts.playfairDisplay(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             color: const Color(0xFF3E2723),
-            fontSize: 22,
+            fontSize: 24,
           ),
         ),
         centerTitle: true,
@@ -597,7 +599,7 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
 
   Widget _buildStep({required String title, String? subtitle, IconData? icon, required Widget child}) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -605,38 +607,46 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [const Color(0xFFE65100), const Color(0xFFFFB300)],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFE65100), Color(0xFFFFB300)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE65100).withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
               child: Icon(icon, color: Colors.white, size: 32),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
           Text(
             title,
             style: GoogleFonts.playfairDisplay(
-              fontSize: 32,
+              fontSize: 36,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF3E2723),
+              height: 1.1,
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               subtitle,
               style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF6F6A7A),
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF8D6E63),
                 height: 1.5,
               ),
             ),
           ],
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Expanded(child: child),
         ],
       ),

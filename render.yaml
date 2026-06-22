@@ -1,0 +1,32 @@
+services:
+  # The Spring Boot Backend
+  - type: web
+    name: astromindai-backend
+    env: docker
+    plan: free
+    rootDir: backend
+    healthCheckPath: /api/v1/health
+    envVars:
+      # Database Connection (You will paste your Neon DB connection details in the Render Dashboard)
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      
+      # Spring Boot Profiles
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      
+      # Third-party API Keys (Set these securely in the Render Dashboard)
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_AI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false

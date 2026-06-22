@@ -13,7 +13,14 @@ class AuthProvider with ChangeNotifier {
     _loadSession();
   }
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: const String.fromEnvironment(
+      'GOOGLE_CLIENT_ID', 
+      // This placeholder prevents the red screen assertion error on Web.
+      // To get your real Client ID, go to Firebase Console -> Authentication -> Sign-in method -> Google -> Web SDK configuration.
+      defaultValue: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+    ),
+  );
   final ApiClient _apiClient;
   final FirebaseAuth? _auth;
 

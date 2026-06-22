@@ -19,6 +19,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   Map<String, dynamic>? dashaData;
   Map<String, dynamic>? transitData;
   Map<String, dynamic>? horoscopeData;
+  Map<String, dynamic>? birthProfileData;
   bool isLoading = true;
   String? errorMessage;
 
@@ -52,6 +53,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         apiClient.getDashaTimeline(userId),
         apiClient.getTransits(userId),
         apiClient.getDailyHoroscope(userId),
+        apiClient.getBirthProfile(userId),
       ]);
 
       setState(() {
@@ -60,6 +62,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         dashaData = results[2];
         transitData = results[3];
         horoscopeData = results[4];
+        birthProfileData = results[5];
         isLoading = false;
       });
     } catch (error) {
@@ -103,8 +106,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
+        backgroundColor: const Color(0xFFFDFBF7),
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: const Color(0xFFE65100),
           title: Text(
             'Birth Chart Dashboard',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
@@ -127,8 +131,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
     if (errorMessage != null) {
       return Scaffold(
+        backgroundColor: const Color(0xFFFDFBF7),
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: const Color(0xFFE65100),
           title: Text(
             'Birth Chart Dashboard',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
@@ -164,26 +169,28 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: const Color(0xFFFDFBF7),
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: const Color(0xFFE65100),
           iconTheme: const IconThemeData(color: Colors.white),
           title: Text(
             'Astro Intelligence',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Colors.white),
+            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w800, color: Colors.white, fontSize: 24),
           ),
           bottom: TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
-            labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
-            unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+            indicatorWeight: 3,
+            labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
+            unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
             tabs: const [
               Tab(text: 'Kundli', icon: Icon(Icons.grid_3x3)),
               Tab(text: 'Life Summary', icon: Icon(Icons.analytics_outlined)),
               Tab(text: 'Periods', icon: Icon(Icons.access_time)),
             ],
           ),
-          elevation: 2,
+          elevation: 0,
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.white),
@@ -208,6 +215,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildProfileInfo(),
+          const SizedBox(height: 16),
           _buildChartInfo(),
           const SizedBox(height: 16),
           BirthChartWidget(
@@ -762,23 +771,73 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     );
   }
 
-  Widget _buildChartInfo() {
-    if (chartData == null) return const SizedBox.shrink();
+  Widget _buildProfileInfo() {
+    if (birthProfileData == null) return const SizedBox.shrink();
+
+    final name = birthProfileData!['fullName']?.toString() ?? 'N/A';
+    final dob = _formatDate(birthProfileData!['birthDate']?.toString());
+    final time = birthProfileData!['birthTime']?.toString() ?? 'N/A';
+    final place = birthProfileData!['birthPlace']?.toString() ?? 'N/A';
+    final gender = birthProfileData!['gender']?.toString() ?? 'N/A';
 
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Chart Information',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                const Icon(Icons.person, color: Color(0xFFE65100), size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  'Birth Details',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            _buildInfoRow('Name', name),
+            _buildInfoRow('Gender', gender),
+            _buildInfoRow('Date of Birth', dob),
+            _buildInfoRow('Time', time),
+            _buildInfoRow('Place', place),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChartInfo() {
+    if (chartData == null) return const SizedBox.shrink();
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.info_outline, color: Color(0xFF8D6E63), size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  'Chart Information',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             _buildInfoRow('Ascendant', chartData!['ascendant']?.toString() ?? 'N/A'),
             _buildInfoRow('Ayanamsa', chartData!['ayanamsa'] ?? 'N/A'),
             _buildInfoRow('Julian Day', chartData!['julianDay']?.toString() ?? 'N/A'),

@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -11,63 +13,96 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
-  static const _ink = Color(0xFF3E2723); // Dark warm brown
+class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _bgController;
+
+  static const _ink = Color(0xFF3E2723); 
   static const _muted = Color(0xFF8D6E63);
-  static const _surface = Color(0xFFFFF3E0);
-  static const _panel = Color(0xFFFFFFFF);
-  static const _primary = Color(0xFFE65100); // Saffron
-  static const _accent = Color(0xFFFFB300); // Gold
+  static const _primary = Color(0xFFE65100); 
+  static const _accent = Color(0xFFFFB300); 
+
+  @override
+  void initState() {
+    super.initState();
+    _bgController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _bgController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _surface,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide = constraints.maxWidth >= 860;
+      backgroundColor: const Color(0xFFFDFBF7),
+      body: Stack(
+        children: [
+          // Animated Background
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _bgController,
+              builder: (context, _) {
+                return CustomPaint(
+                  painter: _MysticBackgroundPainter(_bgController.value),
+                );
+              },
+            ),
+          ),
+          
+          // Foreground Content
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 860;
 
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: wide ? 56 : 20,
-                    vertical: wide ? 40 : 24,
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: wide ? 56 : 24,
+                        vertical: wide ? 40 : 32,
+                      ),
+                      child: wide
+                          ? Row(
+                              children: [
+                                const Expanded(child: _BrandPane()),
+                                const SizedBox(width: 48),
+                                SizedBox(
+                                  width: 440,
+                                  child: _AuthPanel(
+                                    onGoogle: _handleGoogleSignIn,
+                                    onPhone: _handlePhoneSignIn,
+                                    onDemo: _handleDemoSignIn,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const _BrandPane(compact: true),
+                                const SizedBox(height: 40),
+                                _AuthPanel(
+                                  onGoogle: _handleGoogleSignIn,
+                                  onPhone: _handlePhoneSignIn,
+                                  onDemo: _handleDemoSignIn,
+                                ),
+                                const SizedBox(height: 32),
+                              ],
+                            ),
+                    ),
                   ),
-                  child: wide
-                      ? Row(
-                          children: [
-                            const Expanded(child: _BrandPane()),
-                            const SizedBox(width: 48),
-                            SizedBox(
-                              width: 420,
-                              child: _AuthPanel(
-                                onGoogle: _handleGoogleSignIn,
-                                onPhone: _handlePhoneSignIn,
-                                onDemo: _handleDemoSignIn,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const _BrandPane(compact: true),
-                            const SizedBox(height: 28),
-                            _AuthPanel(
-                              onGoogle: _handleGoogleSignIn,
-                              onPhone: _handlePhoneSignIn,
-                              onDemo: _handleDemoSignIn,
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -96,21 +131,30 @@ class _AuthScreenState extends State<AuthScreen> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Enter phone number'),
+        title: Text('Enter phone number', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: '+1 234 567 8900',
-            prefixIcon: Icon(Icons.phone_outlined),
+            prefixIcon: const Icon(Icons.phone_outlined, color: _primary),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: _primary, width: 2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter(color: _muted)),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: _primary),
             onPressed: () async {
               Navigator.pop(dialogContext);
               await authProvider.sendOtp(phoneController.text);
@@ -133,21 +177,30 @@ class _AuthScreenState extends State<AuthScreen> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Enter OTP'),
+        title: Text('Enter OTP', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: otpController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: '123456',
-            prefixIcon: Icon(Icons.sms_outlined),
+            prefixIcon: const Icon(Icons.sms_outlined, color: _primary),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: _primary, width: 2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter(color: _muted)),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: _primary),
             onPressed: () async {
               Navigator.pop(dialogContext);
               final success = await authProvider.signInWithPhone(
@@ -172,9 +225,63 @@ class _AuthScreenState extends State<AuthScreen> {
         content: Text(message),
         backgroundColor: const Color(0xFFB42318),
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
+}
+
+class _MysticBackgroundPainter extends CustomPainter {
+  _MysticBackgroundPainter(this.animationValue);
+
+  final double animationValue;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+
+    // Base gradient
+    final gradient = RadialGradient(
+      center: Alignment(
+        math.sin(animationValue * math.pi * 2) * 0.5, 
+        math.cos(animationValue * math.pi * 2) * 0.5
+      ),
+      radius: 1.5,
+      colors: const [
+        Color(0xFFFFF3E0), // Soft orange tint
+        Color(0xFFFDFBF7), // Warm white
+      ],
+      stops: const [0.0, 1.0],
+    );
+
+    canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
+
+    // Draw some subtle glowing orbs
+    final orbPaint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 80)
+      ..color = const Color(0xFFFFB300).withValues(alpha: 0.15); // Soft gold
+
+    final center1 = Offset(
+      size.width * (0.5 + math.cos(animationValue * math.pi * 2) * 0.3),
+      size.height * (0.3 + math.sin(animationValue * math.pi * 2) * 0.2),
+    );
+    canvas.drawCircle(center1, 200, orbPaint);
+
+    final orbPaint2 = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 100)
+      ..color = const Color(0xFFE65100).withValues(alpha: 0.1); // Soft saffron
+
+    final center2 = Offset(
+      size.width * (0.2 + math.sin(animationValue * math.pi * 2) * 0.4),
+      size.height * (0.7 + math.cos(animationValue * math.pi * 2) * 0.3),
+    );
+    canvas.drawCircle(center2, 250, orbPaint2);
+  }
+
+  @override
+  bool shouldRepaint(_MysticBackgroundPainter oldDelegate) => 
+      oldDelegate.animationValue != animationValue;
 }
 
 class _BrandPane extends StatelessWidget {
@@ -191,22 +298,18 @@ class _BrandPane extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 64,
-              height: 64,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _AuthScreenState._primary,
-                    _AuthScreenState._accent,
-                    _AuthScreenState._ink,
-                  ],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFE65100), Color(0xFFFFB300)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: _AuthScreenState._primary.withOpacity(0.3),
+                    color: const Color(0xFFE65100).withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -215,7 +318,7 @@ class _BrandPane extends StatelessWidget {
               child: const Icon(
                 Icons.auto_awesome,
                 color: Colors.white,
-                size: 32,
+                size: 28,
               ),
             ),
             const SizedBox(width: 16),
@@ -228,22 +331,22 @@ class _BrandPane extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.playfairDisplay(
-                      color: _AuthScreenState._ink,
-                      fontSize: compact ? 32 : 36,
+                      color: const Color(0xFF3E2723),
+                      fontSize: compact ? 28 : 36,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '95%+ Accurate Astrology',
+                    'PREMIUM VEDIC ASTROLOGY',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      color: _AuthScreenState._primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+                      color: const Color(0xFFE65100),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2.0,
                     ),
                   ),
                 ],
@@ -253,109 +356,28 @@ class _BrandPane extends StatelessWidget {
         ),
         SizedBox(height: compact ? 32 : 80),
         Text(
-          'AI-Powered Vedic Astrology',
+          'Discover Your Cosmic Blueprint.',
           style: GoogleFonts.playfairDisplay(
-            color: _AuthScreenState._ink,
-            fontSize: compact ? 44 : 68,
-            height: 1.05,
+            color: const Color(0xFF3E2723),
+            fontSize: compact ? 40 : 64,
+            height: 1.1,
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 20),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
+          constraints: const BoxConstraints(maxWidth: 500),
           child: Text(
-            'Get personalized life insights powered by NASA-accurate planetary calculations and advanced AI.',
+            'Experience highly accurate, personalized life insights powered by NASA-precision planetary mathematics and advanced artificial intelligence.',
             style: GoogleFonts.inter(
-              color: _AuthScreenState._muted,
-              fontSize: compact ? 16 : 19,
-              height: 1.7,
-              fontWeight: FontWeight.w500,
+              color: const Color(0xFF8D6E63),
+              fontSize: compact ? 16 : 18,
+              height: 1.6,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ),
-        if (!compact) ...[const SizedBox(height: 48), const _SignalStrip()],
       ],
-    );
-  }
-}
-
-class _SignalStrip extends StatelessWidget {
-  const _SignalStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    const items = [
-      ('NASA-Accurate Charts', Icons.public, 'Swiss Ephemeris'),
-      ('AI-Powered Insights', Icons.psychology, 'Advanced LLMs'),
-      ('Vedic Wisdom', Icons.auto_awesome, 'Ancient Knowledge'),
-      ('Personalized Guidance', Icons.person, 'Tailored for You'),
-    ];
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: items
-          .map(
-            (item) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white,
-                    const Color(0xFFF8F6F1),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: const Color(0xFFE5DED2)),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _AuthScreenState._primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(item.$2, size: 20, color: _AuthScreenState._primary),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.$1,
-                        style: GoogleFonts.inter(
-                          color: _AuthScreenState._ink,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        item.$3,
-                        style: GoogleFonts.inter(
-                          color: _AuthScreenState._muted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
     );
   }
 }
@@ -371,91 +393,81 @@ class _AuthPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        return Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: _AuthScreenState._panel,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5DED2)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 32,
-                offset: const Offset(0, 16),
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              padding: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE65100).withValues(alpha: 0.05),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Welcome Back',
-                style: GoogleFonts.playfairDisplay(
-                  color: _AuthScreenState._ink,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Welcome Back',
+                    style: GoogleFonts.playfairDisplay(
+                      color: const Color(0xFF3E2723),
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please sign in to continue your journey.',
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF8D6E63),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  _PremiumButton(
+                    icon: authProvider.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.g_mobiledata, size: 28),
+                    label: authProvider.isLoading
+                        ? 'Signing in...'
+                        : 'Continue with Google',
+                    onPressed: authProvider.isLoading ? null : () => onGoogle(authProvider),
+                    isPrimary: true,
+                  ),
+                  const SizedBox(height: 16),
+                  _PremiumButton(
+                    icon: const Icon(Icons.phone_outlined, size: 20),
+                    label: 'Continue with Phone',
+                    onPressed: authProvider.isLoading ? null : () => onPhone(authProvider),
+                    isPrimary: false,
+                  ),
+                  if (onDemo != null) ...[
+                    const SizedBox(height: 32),
+                    const _DividerLabel(),
+                    const SizedBox(height: 24),
+                    _PremiumButton(
+                      icon: const Icon(Icons.play_circle_outline, size: 20),
+                      label: 'Try Demo Mode',
+                      onPressed: authProvider.isLoading ? null : () => onDemo!(authProvider),
+                      isDemo: true,
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Start your personalized astrology journey today',
-                style: GoogleFonts.inter(
-                  color: _AuthScreenState._muted,
-                  fontSize: 15,
-                  height: 1.5,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 32),
-              _ActionButton(
-                icon: authProvider.isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.g_mobiledata, size: 28),
-                label: authProvider.isLoading
-                    ? 'Signing in...'
-                    : 'Continue with Google',
-                onPressed: authProvider.isLoading
-                    ? null
-                    : () => onGoogle(authProvider),
-                filled: true,
-              ),
-              const SizedBox(height: 12),
-              _ActionButton(
-                icon: const Icon(Icons.phone_outlined, size: 20),
-                label: 'Continue with Phone',
-                onPressed: authProvider.isLoading
-                    ? null
-                    : () => onPhone(authProvider),
-              ),
-              if (onDemo != null) ...[
-                const SizedBox(height: 12),
-                _ActionButton(
-                  icon: const Icon(Icons.play_circle_outline, size: 20),
-                  label: 'Try Demo Mode',
-                  onPressed: authProvider.isLoading
-                      ? null
-                      : () => onDemo!(authProvider),
-                  isDemo: true,
-                ),
-              ],
-              const SizedBox(height: 24),
-              const _DividerLabel(),
-              const SizedBox(height: 24),
-              Text(
-                'By continuing, you agree to the Terms of Service and Privacy Policy.',
-                style: GoogleFonts.inter(
-                  color: _AuthScreenState._muted,
-                  fontSize: 12,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -463,65 +475,92 @@ class _AuthPanel extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
+class _PremiumButton extends StatelessWidget {
+  const _PremiumButton({
     required this.icon,
     required this.label,
     required this.onPressed,
-    this.filled = false,
+    this.isPrimary = false,
     this.isDemo = false,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback? onPressed;
-  final bool filled;
+  final bool isPrimary;
   final bool isDemo;
 
   @override
   Widget build(BuildContext context) {
-    Color background;
-    Color foreground;
-    BorderSide? borderSide;
-
     if (isDemo) {
-      background = _AuthScreenState._primary.withOpacity(0.1);
-      foreground = _AuthScreenState._primary;
-      borderSide = BorderSide(color: _AuthScreenState._primary.withOpacity(0.3));
-    } else if (filled) {
-      background = _AuthScreenState._ink;
-      foreground = Colors.white;
-      borderSide = BorderSide(color: _AuthScreenState._ink);
-    } else {
-      background = Colors.white;
-      foreground = _AuthScreenState._ink;
-      borderSide = const BorderSide(color: Color(0xFFD8D0C3));
-    }
-
-    return SizedBox(
-      height: 56,
-      child: FilledButton.icon(
+      return TextButton.icon(
         onPressed: onPressed,
         icon: IconTheme.merge(
-          data: IconThemeData(color: foreground),
+          data: const IconThemeData(color: Color(0xFFE65100)),
           child: icon,
         ),
         label: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: foreground,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFFE65100),
           ),
         ),
-        style: FilledButton.styleFrom(
-          backgroundColor: background,
-          disabledBackgroundColor: background.withValues(alpha: 0.55),
-          foregroundColor: foreground,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: borderSide,
+      );
+    }
+
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: isPrimary
+            ? const LinearGradient(
+                colors: [Color(0xFFE65100), Color(0xFFF57C00)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
+            : null,
+        color: isPrimary ? null : Colors.white,
+        border: isPrimary ? null : Border.all(color: const Color(0xFFE5DED2)),
+        boxShadow: isPrimary
+            ? [
+                BoxShadow(
+                  color: const Color(0xFFE65100).withValues(alpha: 0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconTheme.merge(
+                data: IconThemeData(color: isPrimary ? Colors.white : const Color(0xFF3E2723)),
+                child: icon,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isPrimary ? Colors.white : const Color(0xFF3E2723),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -538,13 +577,14 @@ class _DividerLabel extends StatelessWidget {
       children: [
         const Expanded(child: Divider(color: Color(0xFFE5DED2))),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Secure access',
+            'OR PREVIEW APP',
             style: GoogleFonts.inter(
-              color: _AuthScreenState._muted,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              color: const Color(0xFF8D6E63),
+              fontSize: 11,
+              letterSpacing: 1.5,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

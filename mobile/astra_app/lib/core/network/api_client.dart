@@ -9,8 +9,8 @@ class ApiClient {
       _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl ?? _defaultBaseUrl,
-          connectTimeout: const Duration(seconds: 12),
-          receiveTimeout: const Duration(seconds: 30),
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
           headers: {'Content-Type': 'application/json'},
         ),
       );
@@ -129,6 +129,14 @@ class ApiClient {
   Future<Map<String, dynamic>> getBirthChart(String userId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/astrology/birth-chart',
+      queryParameters: {'userId': userId},
+    );
+    return response.data ?? {};
+  }
+
+  Future<Map<String, dynamic>> getBirthProfile(String userId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/users/birth-profile',
       queryParameters: {'userId': userId},
     );
     return response.data ?? {};

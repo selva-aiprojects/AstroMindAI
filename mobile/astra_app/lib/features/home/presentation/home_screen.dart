@@ -23,15 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F1), // Off-white/cream background
+      backgroundColor: const Color(0xFFFDFBF7), // Warm white background matching Auth
       body: _tabs[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              color: const Color(0xFFE65100).withValues(alpha: 0.05),
+              blurRadius: 24,
+              offset: const Offset(0, -8),
             ),
           ],
         ),
@@ -44,21 +44,21 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           backgroundColor: Colors.white,
           elevation: 0,
-          indicatorColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+          indicatorColor: const Color(0xFFE65100).withValues(alpha: 0.1),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
+              icon: Icon(Icons.home_outlined, color: Color(0xFF8D6E63)),
+              selectedIcon: Icon(Icons.home, color: Color(0xFFE65100)),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline),
-              selectedIcon: Icon(Icons.chat_bubble),
+              icon: Icon(Icons.chat_bubble_outline, color: Color(0xFF8D6E63)),
+              selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFFE65100)),
               label: 'AI Chat',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
+              icon: Icon(Icons.person_outline, color: Color(0xFF8D6E63)),
+              selectedIcon: Icon(Icons.person, color: Color(0xFFE65100)),
               label: 'Profile',
             ),
           ],
