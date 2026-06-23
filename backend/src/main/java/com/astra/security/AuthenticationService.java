@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.annotation.PostConstruct;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,15 @@ public class AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final BirthProfileService birthProfileService;
+
+    @PostConstruct
+    public void init() {
+        userRepository.findByEmail("b.selvakumar@gmail.com").ifPresent(user -> {
+            user.setPasswordHash(passwordEncoder.encode("password123"));
+            userRepository.save(user);
+            log.info("Reset password for b.selvakumar@gmail.com");
+        });
+    }
 
     public String authenticateWithGoogle(String googleId, String email, String name) {
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -108,21 +118,14 @@ public class AuthenticationService {
     }
 
     public String authenticateDemo() {
-        Optional<User> existingUser = userRepository.findByEmail("demo@astromindai.app");
-
-        User user;
-        if (existingUser.isPresent()) {
-            user = existingUser.get();
-            log.info("Demo login: existing user found");
-        } else {
-            user = new User();
-            user.setEmail("demo@astromindai.app");
-            user.setAuthProvider(User.AuthProvider.EMAIL);
-            user.setSubscriptionTier(User.SubscriptionTier.PREMIUM);
-            user.setIsActive(true);
-            user = userRepository.save(user);
-            log.info("Demo login: new user created");
-        }
+        String demoEmail = "demo-" + UUID.randomUUID().toString().substring(0, 8) + "@astromindai.app";
+        User user = new User();
+        user.setEmail(demoEmail);
+        user.setAuthProvider(User.AuthProvider.EMAIL);
+        user.setSubscriptionTier(User.SubscriptionTier.PREMIUM);
+        user.setIsActive(true);
+        user = userRepository.save(user);
+        log.info("Demo login: new fresh user created with email {}", demoEmail);
 
         // Auto-create demo birth profile if it doesn't exist
         try {
