@@ -45,6 +45,15 @@ class ApiClient {
     return response.data ?? {};
   }
 
+  Future<void> warmUpBackend() async {
+    try {
+      // Fire and forget request to wake up Render free tier
+      _dio.get('/health').catchError((_) => Response(requestOptions: RequestOptions(path: '')));
+    } catch (_) {
+      // ignore
+    }
+  }
+
   Future<Map<String, dynamic>> authenticateWithGoogle({
     required String googleId,
     required String email,

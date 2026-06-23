@@ -24,7 +24,7 @@ class AstraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apiClient = ApiClient();
+    final apiClient = ApiClient()..warmUpBackend();
 
     return MultiProvider(
       providers: [

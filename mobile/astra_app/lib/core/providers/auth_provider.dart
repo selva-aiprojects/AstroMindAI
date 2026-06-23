@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,12 +27,14 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   bool _isLoading = false;
+  bool _isWakingUpServer = false;
   String? _errorMessage;
   String? _backendToken;
   String? _backendUserId;
 
   User? get user => _user;
   bool get isLoading => _isLoading;
+  bool get isWakingUpServer => _isWakingUpServer;
   bool get isAuthenticated => _backendToken != null;
   String? get errorMessage => _errorMessage;
   String? get backendToken => _backendToken;
@@ -49,8 +52,25 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
+  Timer? _wakeUpTimer;
+
+  void _startWakeUpTimer() {
+    _isWakingUpServer = false;
+    _wakeUpTimer?.cancel();
+    _wakeUpTimer = Timer(const Duration(seconds: 4), () {
+      _isWakingUpServer = true;
+      notifyListeners();
+    });
+  }
+
+  void _stopWakeUpTimer() {
+    _wakeUpTimer?.cancel();
+    _isWakingUpServer = false;
+  }
+
   Future<bool> signInWithGoogle() async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
@@ -88,9 +108,11 @@ class AuthProvider with ChangeNotifier {
       );
       await _saveBackendSession(response['token']?.toString());
 
+      _stopWakeUpTimer();
       _setLoading(false);
       return true;
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Google sign-in failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
@@ -99,14 +121,17 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> registerWithEmail(String email, String password) async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
       final response = await _apiClient.registerWithEmail(email: email, password: password);
       await _saveBackendSession(response['token']?.toString());
+      _stopWakeUpTimer();
       _setLoading(false);
       return true;
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Registration failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
@@ -115,14 +140,17 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> loginWithEmail(String email, String password) async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
       final response = await _apiClient.loginWithEmail(email: email, password: password);
       await _saveBackendSession(response['token']?.toString());
+      _stopWakeUpTimer();
       _setLoading(false);
       return true;
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Login failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
@@ -131,14 +159,17 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signInWithPhone(String phoneNumber, String otp) async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
       final response = await _apiClient.verifyOtp(phone: phoneNumber, otp: otp);
       await _saveBackendSession(response['token']?.toString());
+      _stopWakeUpTimer();
       _setLoading(false);
       return true;
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Phone sign-in failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
@@ -147,12 +178,15 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> sendOtp(String phoneNumber) async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
       await _apiClient.sendOtp(phoneNumber);
+      _stopWakeUpTimer();
       _setLoading(false);
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Failed to send OTP: ${ApiClient.describeError(e)}');
       _setLoading(false);
     }
@@ -160,6 +194,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signInDemo() async {
     _setLoading(true);
+    _startWakeUpTimer();
     _clearError();
 
     try {
@@ -167,9 +202,11 @@ class AuthProvider with ChangeNotifier {
       final response = await _apiClient.demoLogin();
       await _saveBackendSession(response['token']?.toString());
       
+      _stopWakeUpTimer();
       _setLoading(false);
       return true;
     } catch (e) {
+      _stopWakeUpTimer();
       _setError('Demo login failed: ${ApiClient.describeError(e)}');
       _setLoading(false);
       return false;
@@ -233,6 +270,9 @@ class AuthProvider with ChangeNotifier {
 
   void _setLoading(bool value) {
     _isLoading = value;
+    if (!value) {
+      _stopWakeUpTimer();
+    }
     notifyListeners();
   }
 

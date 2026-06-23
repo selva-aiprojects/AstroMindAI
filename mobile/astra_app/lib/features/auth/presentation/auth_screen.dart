@@ -495,7 +495,7 @@ class _AuthPanel extends StatelessWidget {
                           )
                         : const Icon(Icons.email_outlined, size: 28),
                     label: authProvider.isLoading
-                        ? 'Signing in...'
+                        ? (authProvider.isWakingUpServer ? 'Waking secure server (~50s)...' : 'Signing in...')
                         : 'Continue with Email',
                     onPressed: authProvider.isLoading ? null : () => onEmailLogin(authProvider),
                     isPrimary: true,
@@ -503,7 +503,7 @@ class _AuthPanel extends StatelessWidget {
                   const SizedBox(height: 16),
                   _PremiumButton(
                     icon: const Icon(Icons.person_add_outlined, size: 20),
-                    label: 'Create Account',
+                    label: authProvider.isLoading && authProvider.isWakingUpServer ? 'Please wait...' : 'Create Account',
                     onPressed: authProvider.isLoading ? null : () => onEmailRegister(authProvider),
                     isPrimary: false,
                   ),
@@ -512,8 +512,16 @@ class _AuthPanel extends StatelessWidget {
                     const _DividerLabel(),
                     const SizedBox(height: 24),
                     _PremiumButton(
-                      icon: const Icon(Icons.play_circle_outline, size: 20),
-                      label: 'Try Demo Mode',
+                      icon: authProvider.isLoading && authProvider.isWakingUpServer
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFFD700)),
+                            )
+                          : const Icon(Icons.play_circle_outline, size: 20),
+                      label: authProvider.isLoading
+                          ? (authProvider.isWakingUpServer ? 'Waking server (~50s)...' : 'Starting...')
+                          : 'Try Demo Mode',
                       onPressed: authProvider.isLoading ? null : () => onDemo!(authProvider),
                       isDemo: true,
                     ),
