@@ -24,8 +24,8 @@ class ApiClient {
     if (_configuredBaseUrl.isNotEmpty) {
       return _configuredBaseUrl;
     }
-    // Hardcoding localhost for testing. Replace with production URL before release.
-    return 'http://localhost:8080/api/v1';
+    // Hardcoded production URL for the demo
+    return 'https://astromindai-backend.onrender.com/api/v1';
   }
 
   final String baseUrl;
@@ -220,6 +220,19 @@ class ApiClient {
     );
     final data = jsonDecode(payload) as Map<String, dynamic>;
     return data['userId'] as String?;
+  }
+
+  static String? readEmailFromJwt(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      return null;
+    }
+
+    final payload = utf8.decode(
+      base64Url.decode(base64Url.normalize(parts[1])),
+    );
+    final data = jsonDecode(payload) as Map<String, dynamic>;
+    return data['email'] as String?;
   }
 
   static String describeError(Object error) {

@@ -40,6 +40,23 @@ class AuthProvider with ChangeNotifier {
   String? get backendToken => _backendToken;
   String? get backendUserId => _backendUserId;
 
+  String get displayName {
+    if (_user?.displayName != null && _user!.displayName!.isNotEmpty) {
+      return _user!.displayName!;
+    }
+    if (_backendToken != null) {
+      final email = ApiClient.readEmailFromJwt(_backendToken!);
+      if (email != null && email.isNotEmpty) {
+        final username = email.split('@').first;
+        if (username.length > 1) {
+          return username.substring(0, 1).toUpperCase() + username.substring(1);
+        }
+        return username;
+      }
+    }
+    return 'Astro Seeker';
+  }
+
   void _checkAuthStatus() {
     final auth = _auth;
     if (auth == null) {

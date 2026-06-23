@@ -2,11 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/network/api_client.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../auth/presentation/auth_screen.dart';
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  Future<Map<String, dynamic>>? _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.backendUserId != null) {
+        setState(() {
+          _profileFuture = ApiClient().getBirthProfile(authProvider.backendUserId!);
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +56,27 @@ class ProfileTab extends StatelessWidget {
                   child: Icon(Icons.person, size: 50, color: Color(0xFFFFD700)),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Astro Seeker',
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _profileFuture,
+                  builder: (context, snapshot) {
+                    String name = authProvider.displayName;
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      final fullName = snapshot.data!['fullName'] as String?;
+                      if (fullName != null && fullName.isNotEmpty) {
+                        name = fullName;
+                      }
+                    }
+                    return Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 Container(

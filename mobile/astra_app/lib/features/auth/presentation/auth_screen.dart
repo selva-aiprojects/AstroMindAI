@@ -63,11 +63,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 return SingleChildScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: wide ? 56 : 24,
-                        vertical: wide ? 40 : 32,
-                      ),
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: wide ? 56 : 24,
+                          vertical: 16,
+                        ),
                       child: wide
                           ? Row(
                               children: [
@@ -85,17 +86,18 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const _BrandPane(compact: true),
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 24),
                                 _AuthPanel(
                                   onEmailLogin: _handleEmailLogin,
                                   onEmailRegister: _handleEmailRegister,
                                   onDemo: _handleDemoSignIn,
                                 ),
-                                const SizedBox(height: 32),
                               ],
                             ),
+                      ),
                     ),
                   ),
                 );
@@ -407,25 +409,25 @@ class _BrandPane extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: compact ? 32 : 80),
+        SizedBox(height: compact ? 16 : 40),
         Text(
           'Discover Your Cosmic Blueprint.',
           style: GoogleFonts.playfairDisplay(
             color: const Color(0xFFFFFFFF),
-            fontSize: compact ? 40 : 64,
+            fontSize: compact ? 32 : 56,
             height: 1.1,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500),
           child: Text(
             'Experience highly accurate, personalized life insights powered by NASA-precision planetary mathematics and advanced artificial intelligence.',
             style: GoogleFonts.inter(
               color: const Color(0xB3FFFFFF),
-              fontSize: compact ? 16 : 18,
-              height: 1.6,
+              fontSize: compact ? 14 : 16,
+              height: 1.5,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -451,7 +453,7 @@ class _AuthPanel extends StatelessWidget {
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              padding: const EdgeInsets.all(40),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: const Color(0xFF131A2A).withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(24),
@@ -485,7 +487,7 @@ class _AuthPanel extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
                   _PremiumButton(
                     icon: authProvider.isLoading
                         ? const SizedBox(
@@ -572,7 +574,7 @@ class _PremiumButton extends StatelessWidget {
     }
 
     return Container(
-      height: 56,
+      height: 48,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         gradient: isPrimary
