@@ -353,6 +353,57 @@ public class AstrologyController {
         }
     }
 
+    @GetMapping("/yearly-projection")
+    public ResponseEntity<?> getYearlyProjection(@RequestParam UUID userId) {
+        try {
+            BirthProfile birthProfile = birthProfileService.getBirthProfileByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Birth profile not found"));
+
+            SwissEphemerisService.BirthChart natalChart = swissEphemerisService.calculateBirthChart(
+                    birthProfile.getBirthDate(),
+                    birthProfile.getBirthTime(),
+                    birthProfile.getBirthLatitude().doubleValue(),
+                    birthProfile.getBirthLongitude().doubleValue(),
+                    birthProfile.getTimezone(),
+                    birthProfile.getAyanamsa()
+            );
+
+            double moonLongitude = natalChart.getPlanetaryPositions().get("Moon").getLongitude();
+            DashaCalculator.DashaTimeline dashaTimeline = dashaCalculator.calculateDashaTimeline(
+                    birthProfile.getBirthDate(),
+                    moonLongitude
+            );
+
+            Map<String, Object> context = new HashMap<>();
+            context.put("birthDate", birthProfile.getBirthDate());
+            context.put("birthTime", birthProfile.getBirthTime());
+            context.put("chart", natalChart);
+            context.put("dashaTimeline", dashaTimeline);
+            context.put("projectionPeriod", "Next 12 Months (" + LocalDate.now() + " to " + LocalDate.now().plusYears(1) + ")");
+
+            Map<String, String> summaries = new HashMap<>();
+            String[] agentsToQuery = {"career_guidance", "marriage_guidance", "finance_guidance", "health_guidance"};
+            String[] keys = {"career", "marriage", "finance", "health"};
+            
+            String prompt = "Analyze my planetary positions and upcoming Dasha periods for the next 12 months. Provide a one-year projection regarding %s. Format your response strictly as a bulleted list with three sections: 1. Expected Events (with approximate date ranges), 2. How to Face This, 3. Specific Remedies.";
+
+            for (int i = 0; i < agentsToQuery.length; i++) {
+                AgentRouter.AgentRequest agentRequest = AgentRouter.AgentRequest.builder()
+                        .userId(userId.toString())
+                        .query(String.format(prompt, keys[i]))
+                        .context(context)
+                        .build();
+                AgentRouter.AgentResponse response = agentRouter.routeToAgent(agentsToQuery[i], agentRequest);
+                summaries.put(keys[i], response.getResponse());
+            }
+
+            return ResponseEntity.ok(summaries);
+        } catch (Exception e) {
+            log.error("Error generating yearly projection", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to generate yearly projection: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/life-summary")
     public ResponseEntity<?> getLifeSummary(@RequestParam UUID userId) {
         try {

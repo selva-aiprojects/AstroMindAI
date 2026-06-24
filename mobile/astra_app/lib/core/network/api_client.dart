@@ -11,7 +11,10 @@ class ApiClient {
           baseUrl: baseUrl ?? _defaultBaseUrl,
           connectTimeout: const Duration(seconds: 120),
           receiveTimeout: const Duration(seconds: 120),
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Bypass-Tunnel-Reminder': 'true', // Required to bypass Localtunnel confirmation page
+          },
         ),
       );
 
@@ -24,7 +27,7 @@ class ApiClient {
     if (_configuredBaseUrl.isNotEmpty) {
       return _configuredBaseUrl;
     }
-    // Hardcoded production URL for the demo
+    // Production Render Backend URL
     return 'https://astromindai-backend.onrender.com/api/v1';
   }
 
@@ -172,6 +175,14 @@ class ApiClient {
   Future<Map<String, dynamic>> getCurrentSituation(String userId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/astrology/current-situation',
+      queryParameters: {'userId': userId},
+    );
+    return response.data ?? {};
+  }
+
+  Future<Map<String, dynamic>> getYearlyProjection(String userId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/astrology/yearly-projection',
       queryParameters: {'userId': userId},
     );
     return response.data ?? {};

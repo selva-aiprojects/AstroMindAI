@@ -4,6 +4,7 @@ import 'tabs/dashboard_tab.dart';
 import 'tabs/insights_tab.dart';
 import 'tabs/profile_tab.dart';
 import '../../chat/presentation/chat_screen.dart';
+import '../../../core/theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,13 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F19), // Warm white background matching Auth
+      backgroundColor: AppColors.backgroundDark, // Warm white background matching Auth
       body: _tabs[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFD700).withValues(alpha: 0.05),
+              color: AppColors.primary.withValues(alpha: 0.05),
               blurRadius: 24,
               offset: const Offset(0, -8),
             ),
@@ -44,28 +45,28 @@ class _HomeScreenState extends State<HomeScreen> {
               _currentIndex = index;
             });
           },
-          backgroundColor: const Color(0xFF0B0F19),
+          backgroundColor: AppColors.backgroundDark,
           elevation: 0,
-          indicatorColor: const Color(0xFFFFD700).withValues(alpha: 0.1),
+          indicatorColor: AppColors.primary.withValues(alpha: 0.1),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined, color: Color(0xB3FFFFFF)),
-              selectedIcon: Icon(Icons.home, color: Color(0xFFFFD700)),
+              icon: Icon(Icons.home_outlined, color: AppColors.textDarkMuted),
+              selectedIcon: Icon(Icons.home, color: AppColors.primary),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_awesome_outlined, color: Color(0xB3FFFFFF)),
-              selectedIcon: Icon(Icons.auto_awesome, color: Color(0xFFFFD700)),
+              icon: Icon(Icons.auto_awesome_outlined, color: AppColors.textDarkMuted),
+              selectedIcon: Icon(Icons.auto_awesome, color: AppColors.primary),
               label: 'Insights',
             ),
             NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline, color: Color(0xB3FFFFFF)),
-              selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFFFFD700)),
+              icon: Icon(Icons.chat_bubble_outline, color: AppColors.textDarkMuted),
+              selectedIcon: Icon(Icons.chat_bubble, color: AppColors.primary),
               label: 'AI Chat',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline, color: Color(0xB3FFFFFF)),
-              selectedIcon: Icon(Icons.person, color: Color(0xFFFFD700)),
+              icon: Icon(Icons.person_outline, color: AppColors.textDarkMuted),
+              selectedIcon: Icon(Icons.person, color: AppColors.primary),
               label: 'Profile',
             ),
           ],

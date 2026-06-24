@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/theme/app_theme.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -611,7 +612,7 @@ class _PremiumButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconTheme.merge(
-                data: IconThemeData(color: isPrimary ? Colors.white : const Color(0xFFFFFFFF)),
+                data: IconThemeData(color: isPrimary ? AppColors.textOnPrimary : const Color(0xFFFFFFFF)),
                 child: icon,
               ),
               const SizedBox(width: 12),
@@ -620,7 +621,7 @@ class _PremiumButton extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isPrimary ? Colors.white : const Color(0xFFFFFFFF),
+                  color: isPrimary ? AppColors.textOnPrimary : const Color(0xFFFFFFFF),
                 ),
               ),
             ],

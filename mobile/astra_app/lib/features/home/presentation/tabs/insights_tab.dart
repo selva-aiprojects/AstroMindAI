@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class InsightsTab extends StatefulWidget {
   const InsightsTab({super.key});
@@ -17,6 +18,7 @@ class _InsightsTabState extends State<InsightsTab> {
   Map<String, dynamic>? _insights;
   bool _isLoading = true;
   String? _error;
+  bool _isYearly = false;
 
   @override
   void initState() {
@@ -37,7 +39,9 @@ class _InsightsTabState extends State<InsightsTab> {
       }
 
       final apiClient = context.read<ApiClient>();
-      final insights = await apiClient.getCurrentSituation(authProvider.backendUserId!);
+      final insights = _isYearly 
+          ? await apiClient.getYearlyProjection(authProvider.backendUserId!)
+          : await apiClient.getCurrentSituation(authProvider.backendUserId!);
       
       if (mounted) {
         setState(() {
@@ -84,7 +88,7 @@ class _InsightsTabState extends State<InsightsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Current Situation',
+                    'Cosmic Insights',
                     style: GoogleFonts.playfairDisplay(
                       color: Colors.white,
                       fontSize: 36,
@@ -93,12 +97,77 @@ class _InsightsTabState extends State<InsightsTab> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'AI predictions based on your live planetary transits.',
+                    _isYearly 
+                      ? 'Detailed 12-month forecasts, expected events, and specific remedies.'
+                      : 'AI predictions based on your live planetary transits.',
                     style: GoogleFonts.inter(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 16,
                       height: 1.5,
                       fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0B0F19).withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (_isYearly) {
+                                  setState(() { _isYearly = false; });
+                                  _loadInsights();
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: !_isYearly ? AppColors.primary : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text('Current', 
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    color: !_isYearly ? AppColors.textOnPrimary : Colors.white70,
+                                  )
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (!_isYearly) {
+                                  setState(() { _isYearly = true; });
+                                  _loadInsights();
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: _isYearly ? AppColors.primary : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text('1-Year Projection', 
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    color: _isYearly ? AppColors.textOnPrimary : Colors.white70,
+                                  )
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -115,7 +184,7 @@ class _InsightsTabState extends State<InsightsTab> {
                     const CircularProgressIndicator(color: Color(0xFFFFD700)),
                     const SizedBox(height: 24),
                     Text(
-                      'Analyzing current transits...',
+                      _isYearly ? 'Projecting your year ahead...' : 'Analyzing current transits...',
                       style: GoogleFonts.inter(
                         color: Colors.white70,
                         fontSize: 16,
