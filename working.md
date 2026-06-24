@@ -7,6 +7,8 @@ All core components have been wired for a fully working demo. The app can run in
 ## What's Wired
 
 ### Backend (Spring Boot 3.2 / Java 17)
+- [x] **Render Hosting**: Configured for Render deployment. Health check at `/api/v1/health` is pinged by UptimeRobot every 10-14 minutes to prevent idle sleep.
+- [x] **Yearly AI Projection**: `/api/v1/astrology/yearly-projection` endpoint wired to LLM for comprehensive 12-month future forecasting.
 - [x] **Swiss Ephemeris** (`SwissEphemerisService.java`): Real `SwissEph` library calls (`swe_calc_ut`, `swe_houses`) with simplified fallback when native lib unavailable
 - [x] **AI Agents** (10 agents): All wired to LangChain4j `ChatLanguageModel` — sends birth chart context as structured prompt to LLM (OpenAI GPT-4o / Claude / Gemini). Falls back to smart chart-aware template responses when no API key configured
 - [x] **AgentRouter** (`AgentRouter.java`): LLM-based intent classification (falls back to keyword matching). All agents injected with `ChatLanguageModel`
@@ -18,9 +20,12 @@ All core components have been wired for a fully working demo. The app can run in
 - [x] **Build**: Fixed `AstraApplication` class name, Lombok `@Builder` on all DTOs
 
 ### Mobile (Flutter / Dart)
+- [x] **UI/UX Pro Max Refactor**: Fully redesigned using a "Liquid Glass" premium aesthetic (Cinematic Void, Luxury Gold `#D4AF37`, Royal Amethyst `#7E57C2`) with `BackdropFilter` glassmorphism.
+- [x] **Insights Toggle**: Added segmented control in `InsightsTab` to switch between 'Current Transits' and '1-Year AI Projection'.
+- [x] **Split APK Builds**: Implemented `--split-per-abi` build output for lightweight Android artifacts (`armeabi-v7a`, `arm64-v8a`, `x86_64`).
 - [x] **Demo Mode**: "Demo Mode (Dev)" button on auth screen — calls `/api/v1/auth/demo`, gets JWT, saves session
 - [x] **Chat Fallback**: When backend unavailable, uses local `_generateAIResponse()` with chart-aware hardcoded replies
-- [x] **API Client**: Full `demoLogin()` method, all endpoints wired
+- [x] **API Client**: Full `demoLogin()` method, all endpoints wired including Render production URLs.
 - [x] **Auth Flow**: Google OAuth, Phone OTP, and Demo mode all functional
 
 ### Infrastructure
@@ -75,11 +80,15 @@ flutter run
 | All `*Agent.java` (10 files) | LangChain4j `ChatLanguageModel` injection + smart template fallback |
 | `ChromaService.java` | Real `EmbeddingModel` for vector generation |
 | `KnowledgeBaseService.java` | 12 Vedic texts + 10 remedies seeded |
+| `AstrologyController.java` | `/yearly-projection` endpoint added |
 | `AuthController.java` | `/api/v1/auth/demo` endpoint |
 | `AuthenticationService.java` | `authenticateDemo()` method |
 | `application-dev.properties` (new) | H2 profile for dev |
+| `app_theme.dart` | Refactored to Premium Dark + Gold "Liquid Glass" palette |
+| `dashboard_tab.dart` | Glassmorphism UI update using `BackdropFilter` |
+| `insights_tab.dart` | Glassmorphism UI + Yearly Projection toggle |
 | `auth_provider.dart` | `signInDemo()` method |
-| `api_client.dart` | `demoLogin()` method |
+| `api_client.dart` | `demoLogin()`, `getYearlyProjection()`, and Render prod URL |
 | `auth_screen.dart` | "Demo Mode (Dev)" button |
 | `chat_screen.dart` | Local AI fallback when backend unreachable |
 
@@ -97,5 +106,6 @@ flutter run
 | `/api/v1/astrology/chat` | POST | AI chat with routing |
 | `/api/v1/astrology/dasha-timeline` | GET | Dasha periods |
 | `/api/v1/astrology/transits` | GET | Current transits |
+| `/api/v1/astrology/yearly-projection` | GET | 1-year AI-driven projection |
 | `/api/v1/astrology/daily-horoscope` | GET | Daily horoscope |
 | `/api/v1/subscriptions/plans` | GET | Subscription tiers |

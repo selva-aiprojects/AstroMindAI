@@ -1,9 +1,11 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/auth_screen.dart';
 
 class DashboardTab extends StatefulWidget {
@@ -115,7 +117,7 @@ class _DashboardTabState extends State<DashboardTab> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0F19),
+        color: AppColors.backgroundDark,
         border: Border(
           bottom: BorderSide(
             color: Colors.white.withValues(alpha: 0.05),
@@ -132,7 +134,7 @@ class _DashboardTabState extends State<DashboardTab> {
               Text(
                 'Namaste,',
                 style: GoogleFonts.inter(
-                  color: const Color(0xFFFFE55C), // Brightened for better visibility
+                  color: AppColors.primary, 
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
@@ -177,7 +179,7 @@ class _DashboardTabState extends State<DashboardTab> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF131A2A),
+                color: AppColors.surfaceDark,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
@@ -196,13 +198,13 @@ class _DashboardTabState extends State<DashboardTab> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFD700), Color(0xFF9D4EDD)],
+            colors: [AppColors.primary, AppColors.secondary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF9D4EDD).withValues(alpha: 0.2),
+              color: AppColors.secondary.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -212,7 +214,7 @@ class _DashboardTabState extends State<DashboardTab> {
           margin: const EdgeInsets.all(1.5), // creates the gradient border effect
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF131A2A),
+            color: AppColors.surfaceDark,
             borderRadius: BorderRadius.circular(22.5),
           ),
           child: Row(
@@ -221,10 +223,10 @@ class _DashboardTabState extends State<DashboardTab> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFD700).withValues(alpha: 0.15),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.wb_sunny_rounded, color: Color(0xFFFFD700), size: 24),
+                child: const Icon(Icons.wb_sunny_rounded, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -234,7 +236,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     Text(
                       'Daily Cosmic Insight',
                       style: GoogleFonts.inter(
-                        color: const Color(0xFFFFD700),
+                        color: AppColors.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -265,12 +267,12 @@ class _DashboardTabState extends State<DashboardTab> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2A0B4C), Color(0xFF131A2A)],
+        gradient: LinearGradient(
+          colors: [AppColors.secondary.withValues(alpha: 0.3), AppColors.surfaceDark],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
-        border: Border.all(color: const Color(0xFF9D4EDD).withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -302,8 +304,8 @@ class _DashboardTabState extends State<DashboardTab> {
           ElevatedButton(
             onPressed: () => _showComingSoon(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFD700),
-              foregroundColor: const Color(0xFF131A2A),
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -353,24 +355,25 @@ class _DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        color: AppColors.surfaceDark,
         borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          colors: gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        border: Border.all(color: gradient.first.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: gradient.last.withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: gradient.last.withValues(alpha: 0.1),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Material(
+            color: gradient.first.withValues(alpha: 0.1),
+            child: InkWell(
+              onTap: onTap,
           borderRadius: BorderRadius.circular(24),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -415,6 +418,8 @@ class _DashboardCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
           ),
         ),
       ),

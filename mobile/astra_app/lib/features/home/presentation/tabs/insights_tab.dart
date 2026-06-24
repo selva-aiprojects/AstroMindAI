@@ -73,8 +73,8 @@ class _InsightsTabState extends State<InsightsTab> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF5E2CA5), // Deep Purple
-                    Color(0xFF131A2A), // Dark BG
+                    AppColors.tertiary,
+                    AppColors.backgroundDark,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -181,7 +181,7 @@ class _InsightsTabState extends State<InsightsTab> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const CircularProgressIndicator(color: Color(0xFFFFD700)),
+                    const CircularProgressIndicator(color: AppColors.primary),
                     const SizedBox(height: 24),
                     Text(
                       _isYearly ? 'Projecting your year ahead...' : 'Analyzing current transits...',
@@ -214,8 +214,8 @@ class _InsightsTabState extends State<InsightsTab> {
                       const SizedBox(height: 16),
                       FilledButton(
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFD700),
-                          foregroundColor: const Color(0xFF131A2A),
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.textOnPrimary,
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/birth-profile');
@@ -240,28 +240,28 @@ class _InsightsTabState extends State<InsightsTab> {
                   _InsightCard(
                     title: 'Career & Ambition',
                     icon: Icons.work_outline,
-                    color: const Color(0xFF4ECDC4),
+                    color: AppColors.primary,
                     content: _insights?['career'] ?? 'No data available',
                   ),
                   const SizedBox(height: 24),
                   _InsightCard(
                     title: 'Love & Relationships',
                     icon: Icons.favorite_outline,
-                    color: const Color(0xFFFF6B6B),
+                    color: AppColors.error,
                     content: _insights?['marriage'] ?? 'No data available',
                   ),
                   const SizedBox(height: 24),
                   _InsightCard(
                     title: 'Wealth & Finance',
                     icon: Icons.account_balance_wallet_outlined,
-                    color: const Color(0xFFFFD700),
+                    color: AppColors.primaryDark,
                     content: _insights?['finance'] ?? 'No data available',
                   ),
                   const SizedBox(height: 24),
                   _InsightCard(
                     title: 'Health & Spiritual',
                     icon: Icons.self_improvement,
-                    color: const Color(0xFF9D4EDD),
+                    color: AppColors.secondary,
                     content: _insights?['health'] ?? 'No data available',
                   ),
                   const SizedBox(height: 40),
@@ -292,7 +292,7 @@ class _InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF131A2A),
+        color: AppColors.surfaceDark,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: [

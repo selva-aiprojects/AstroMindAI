@@ -3,27 +3,27 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Brand
-  static const Color primary = Color(0xFFFFD700); // Neon Gold
-  static const Color primaryDark = Color(0xFFE5C100);
-  static const Color secondary = Color(0xFF9D4EDD); // Bright Purple
-  static const Color tertiary = Color(0xFF5E2CA5); // Deep Purple
+  static const Color primary = Color(0xFFD4AF37); // Luxury Gold
+  static const Color primaryDark = Color(0xFFA16207); // Dark Gold
+  static const Color secondary = Color(0xFF7E57C2); // Royal Amethyst
+  static const Color tertiary = Color(0xFF512DA8); // Deep Indigo
 
   // Backgrounds
-  static const Color backgroundLight = Color(0xFFF8F9FA);
-  static const Color backgroundDark = Color(0xFF0B0F19); // Midnight Blue
-  static const Color surfaceDark = Color(0xFF131A2A); // Lighter blue for cards
+  static const Color backgroundLight = Color(0xFFF8FAFC);
+  static const Color backgroundDark = Color(0xFF0A0A0E); // Cinematic Void
+  static const Color surfaceDark = Color(0x8016161E); // Translucent Liquid Glass Surface
   
   // Text
-  static const Color textLight = Color(0xFF1A1A1A);
+  static const Color textLight = Color(0xFF0F172A);
   static const Color textDark = Color(0xFFFFFFFF);
   static const Color textDarkMuted = Color(0xB3FFFFFF);
   
   // Custom text for high contrast on gold buttons
-  static const Color textOnPrimary = Color(0xFF0B0F19); 
+  static const Color textOnPrimary = Color(0xFF0A0A0E); 
 
   // Status
-  static const Color error = Color(0xFFB42318);
-  static const Color success = Color(0xFF027A48);
+  static const Color error = Color(0xFFDC2626);
+  static const Color success = Color(0xFF059669);
 }
 
 class AppTheme {
@@ -90,7 +90,7 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: GoogleFonts.playfairDisplay(
           fontWeight: FontWeight.bold,
           fontSize: 24,
           color: AppColors.textDark,
