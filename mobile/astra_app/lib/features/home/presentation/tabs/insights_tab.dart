@@ -348,7 +348,28 @@ class _InsightCard extends StatelessWidget {
   }
 
   List<Widget> _parseMarkdownContent(String markdown) {
-    final lines = markdown.split('\n');
+    if (markdown.trim().isEmpty) return [];
+
+    // If it already contains markdown bullets, parse line by line
+    if (markdown.contains('- ') || markdown.contains('* ') || markdown.contains('1. ')) {
+      return _parseLines(markdown.split('\n'));
+    }
+
+    // Otherwise, split by '. ' to create a bulleted timeline view for raw text
+    final sentences = markdown.split('. ');
+    final bulletLines = <String>[];
+    for (var sentence in sentences) {
+      sentence = sentence.trim();
+      if (sentence.isNotEmpty) {
+        if (!sentence.endsWith('.')) sentence += '.';
+        bulletLines.add('- $sentence');
+      }
+    }
+    
+    return _parseLines(bulletLines);
+  }
+
+  List<Widget> _parseLines(List<String> lines) {
     final widgets = <Widget>[];
 
     for (final line in lines) {
@@ -374,19 +395,24 @@ class _InsightCard extends StatelessWidget {
       } else if (line.startsWith('- ') || line.startsWith('* ')) {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 6),
+            padding: const EdgeInsets.only(left: 8, bottom: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '• ',
-                  style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                Container(
+                  margin: const EdgeInsets.only(top: 6, right: 12),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 Expanded(
                   child: Text(
                     line.substring(2).replaceAll('**', ''),
                     style: GoogleFonts.inter(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 14,
                       height: 1.5,
                     ),
@@ -398,12 +424,15 @@ class _InsightCard extends StatelessWidget {
         );
       } else {
         widgets.add(
-          Text(
-            line.replaceAll('**', ''),
-            style: GoogleFonts.inter(
-              color: Colors.white.withValues(alpha: 0.85),
-              fontSize: 14,
-              height: 1.5,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              line.replaceAll('**', ''),
+              style: GoogleFonts.inter(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
           ),
         );

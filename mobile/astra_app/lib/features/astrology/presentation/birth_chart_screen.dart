@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/providers/auth_provider.dart';
 import 'birth_chart_widget.dart';
+import '../../../core/theme/app_theme.dart';
 
 class BirthChartScreen extends StatefulWidget {
   const BirthChartScreen({super.key});
@@ -106,9 +107,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFF0B0F19),
+        backgroundColor: AppColors.backgroundDark,
         appBar: AppBar(
-          backgroundColor: const Color(0xFFFFD700),
+          backgroundColor: AppColors.surfaceDark,
           title: Text(
             'Birth Chart Dashboard',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
@@ -169,13 +170,13 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0B0F19),
+        backgroundColor: AppColors.backgroundDark,
         appBar: AppBar(
-          backgroundColor: const Color(0xFFFFD700),
+          backgroundColor: AppColors.surfaceDark,
           iconTheme: const IconThemeData(color: Colors.white),
           title: Text(
             'Astro Intelligence',
-            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w800, color: Colors.white, fontSize: 24),
+            style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w800, color: AppColors.primary, fontSize: 24),
           ),
           bottom: TabBar(
             labelColor: Colors.white,
@@ -383,12 +384,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       elevation: 4,
       child: Container(
         decoration: BoxDecoration(
+          color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFD700), Color(0xFFFFD700)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -396,7 +394,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.star, color: Color(0xFFE0A640), size: 28),
+                const Icon(Icons.star, color: AppColors.primary, size: 28),
                 const SizedBox(width: 8),
                 Text(
                   'Current Planetary Period',
@@ -790,7 +788,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.person, color: Color(0xFFFFD700), size: 24),
+                const Icon(Icons.person, color: AppColors.primary, size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'Birth Details',

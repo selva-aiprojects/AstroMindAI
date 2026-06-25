@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/theme/app_theme.dart';
 
 class ChatMessage {
   final String text;
@@ -96,9 +97,10 @@ class _ChatScreenState extends State<ChatScreen> {
         constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
           color: message.isUser
-              ? Theme.of(context).colorScheme.primary
-              : Colors.grey.shade200,
+              ? AppColors.primary
+              : AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(16),
+          border: message.isUser ? null : Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               message.text,
               style: GoogleFonts.inter(
-                color: message.isUser ? Colors.white : Colors.white,
+                color: message.isUser ? AppColors.textOnPrimary : Colors.white,
                 fontSize: 14,
               ),
             ),
@@ -114,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               _formatTime(message.timestamp),
               style: GoogleFonts.inter(
-                color: message.isUser ? Colors.white70 : Colors.white70,
+                color: message.isUser ? AppColors.textOnPrimary.withValues(alpha: 0.7) : Colors.white70,
                 fontSize: 10,
               ),
             ),
@@ -131,8 +133,9 @@ class _ChatScreenState extends State<ChatScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -183,10 +186,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceDark,
+        border: Border(top: BorderSide(color: AppColors.primary.withValues(alpha: 0.1))),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -205,8 +209,12 @@ class _ChatScreenState extends State<ChatScreen> {
               controller: _messageController,
               decoration: InputDecoration(
                 hintText: 'Ask about your chart...',
+                hintStyle: const TextStyle(color: Colors.white54),
+                filled: true,
+                fillColor: AppColors.backgroundDark,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,

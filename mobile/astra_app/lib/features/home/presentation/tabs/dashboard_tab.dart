@@ -72,14 +72,14 @@ class _DashboardTabState extends State<DashboardTab> {
                   title: 'Birth Profile',
                   subtitle: 'Manage Details',
                   icon: Icons.person_outline_rounded,
-                  gradient: const [Color(0xFF2E1065), Color(0xFF4C1D95)],
+                  gradient: const [Color(0xFF4C1D95), Color(0xFF2E1065)],
                   onTap: () => Navigator.pushNamed(context, '/birth-profile'),
                 ),
                 _DashboardCard(
                   title: 'Free Kundli',
                   subtitle: 'Birth Chart',
                   icon: Icons.auto_graph_rounded,
-                  gradient: const [Color(0xFF831843), Color(0xFFBE185D)],
+                  gradient: const [Color(0xFFBE185D), Color(0xFF831843)],
                   onTap: () => Navigator.pushNamed(context, '/birth-chart'),
                 ),
                 _DashboardCard(
@@ -197,8 +197,8 @@ class _DashboardTabState extends State<DashboardTab> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
+          gradient: LinearGradient(
+            colors: [AppColors.primary.withValues(alpha: 0.4), AppColors.surfaceDark],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
