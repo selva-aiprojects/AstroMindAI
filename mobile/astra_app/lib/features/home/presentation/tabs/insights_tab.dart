@@ -21,6 +21,7 @@ class _InsightsTabState extends State<InsightsTab> {
   bool _isLoading = true;
   String? _error;
   bool _isYearly = false;
+  String? _lastLoadedLangCode;
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _InsightsTabState extends State<InsightsTab> {
       }
 
       final langCode = context.read<LanguageProvider>().code;
+      _lastLoadedLangCode = langCode;
       final apiClient = context.read<ApiClient>();
       final insights = _isYearly
           ? await apiClient.getYearlyProjection(authProvider.backendUserId!, language: langCode)
@@ -64,6 +66,16 @@ class _InsightsTabState extends State<InsightsTab> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the current language — this causes a rebuild whenever it changes
+    final currentLangCode = context.watch<LanguageProvider>().code;
+
+    // If the language changed since we last loaded data, reload automatically
+    if (_lastLoadedLangCode != null && _lastLoadedLangCode != currentLangCode && !_isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadInsights();
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Focus(

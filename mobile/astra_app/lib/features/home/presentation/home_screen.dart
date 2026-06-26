@@ -16,18 +16,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
-    const DashboardTab(),
-    const InsightsTab(),
-    const ChatScreen(),
-    const ProfileTab(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark, // Warm white background matching Auth
-      body: _tabs[_currentIndex],
+      backgroundColor: AppColors.backgroundDark,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [
+          DashboardTab(),
+          InsightsTab(),
+          ChatScreen(),
+          ProfileTab(),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
