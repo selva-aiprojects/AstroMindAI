@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/theme/app_theme.dart';
 
 class BirthProfileOnboarding extends StatefulWidget {
   const BirthProfileOnboarding({super.key});
@@ -769,6 +770,67 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
       initialDate: DateTime.now().subtract(const Duration(days: 365 * 25)),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.primary,           // Selected day circle
+              onPrimary: AppColors.textOnPrimary,   // Text on selected day
+              surface: Color(0xFF1A1230),           // Calendar background
+              onSurface: Colors.white,              // Day numbers & header text
+            ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: const Color(0xFF1A1230),
+              headerBackgroundColor: const Color(0xFF2A1A4E),
+              headerForegroundColor: Colors.white,
+              yearStyle: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              dayStyle: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+              weekdayStyle: GoogleFonts.inter(
+                color: AppColors.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              todayBorder: const BorderSide(color: AppColors.primary, width: 1.5),
+              todayForegroundColor: WidgetStateProperty.all(AppColors.primary),
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.textOnPrimary;
+                if (states.contains(WidgetState.disabled)) return Colors.white24;
+                return Colors.white;
+              }),
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary;
+                return Colors.transparent;
+              }),
+              yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.textOnPrimary;
+                return Colors.white;
+              }),
+              yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary;
+                return Colors.transparent;
+              }),
+              rangePickerBackgroundColor: const Color(0xFF1A1230),
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && mounted) {
       setState(() {
@@ -781,6 +843,57 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.primary,
+              onPrimary: AppColors.textOnPrimary,
+              surface: Color(0xFF1A1230),
+              onSurface: Colors.white,
+            ),
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: const Color(0xFF1A1230),
+              dialBackgroundColor: const Color(0xFF2A1A4E),
+              dialHandColor: AppColors.primary,
+              dialTextColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.textOnPrimary;
+                return Colors.white;
+              }),
+              hourMinuteColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary.withOpacity(0.2);
+                return const Color(0xFF2A1A4E);
+              }),
+              hourMinuteTextColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary;
+                return Colors.white;
+              }),
+              dayPeriodColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary.withOpacity(0.2);
+                return Colors.transparent;
+              }),
+              dayPeriodTextColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return AppColors.primary;
+                return Colors.white70;
+              }),
+              entryModeIconColor: AppColors.primary,
+              helpTextStyle: GoogleFonts.inter(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && mounted) {
       setState(() {
@@ -794,7 +907,10 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _showError('Location services are disabled.');
+        if (mounted) {
+          setState(() => _isSaving = false);
+          await _showLocationServiceDisabledDialog();
+        }
         return;
       }
 
@@ -808,7 +924,10 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
       }
       
       if (permission == LocationPermission.deniedForever) {
-        _showError('Location permissions are permanently denied.');
+        if (mounted) {
+          setState(() => _isSaving = false);
+          await _showLocationPermissionDeniedDialog();
+        }
         return;
       }
 
@@ -822,10 +941,138 @@ class _BirthProfileOnboardingState extends State<BirthProfileOnboarding> {
         _placeController.text = 'My Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
       });
     } catch (e) {
-      _showError('Failed to get current location: $e');
+      _showError('Failed to get current location. Please enter your birth place manually.');
     } finally {
-      setState(() => _isSaving = false);
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
+  }
+
+  /// Shows a dialog guiding the user to enable location services on their device.
+  Future<void> _showLocationServiceDisabledDialog() async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1230),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE0A640).withOpacity(0.15),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.location_off_rounded, color: Color(0xFFE0A640), size: 36),
+        ),
+        title: Text(
+          'Location Services Disabled',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Your device\'s location services are turned off. To use your current location, please enable Location in your device settings.\n\nYou can also enter your birth place manually.',
+          style: GoogleFonts.inter(
+            color: Colors.white70,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Enter Manually',
+              style: GoogleFonts.inter(
+                color: Colors.white54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFE0A640),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Geolocator.openLocationSettings();
+            },
+            icon: const Icon(Icons.settings_rounded, size: 18),
+            label: Text(
+              'Open Settings',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Shows a dialog guiding the user to grant location permission in app settings.
+  Future<void> _showLocationPermissionDeniedDialog() async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1230),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF9D4EDD).withOpacity(0.15),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.location_disabled_rounded, color: Color(0xFF9D4EDD), size: 36),
+        ),
+        title: Text(
+          'Permission Required',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Location permission has been permanently denied. To use your current location, please enable it in your app settings:\n\nSettings → Apps → AstroMindAI → Permissions → Location\n\nYou can also enter your birth place manually.',
+          style: GoogleFonts.inter(
+            color: Colors.white70,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Enter Manually',
+              style: GoogleFonts.inter(
+                color: Colors.white54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF9D4EDD),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Geolocator.openAppSettings();
+            },
+            icon: const Icon(Icons.app_settings_alt_rounded, size: 18),
+            label: Text(
+              'Open App Settings',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _createProfile() async {

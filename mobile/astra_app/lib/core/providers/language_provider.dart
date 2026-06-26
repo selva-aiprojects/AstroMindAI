@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Holds the user's selected language for AI responses and astro reports.
+/// Persists the selection to SharedPreferences so it survives app restarts.
 class LanguageProvider extends ChangeNotifier {
+  static const String _prefKey = 'selected_language_code';
+
   static const List<AppLanguage> supportedLanguages = [
     AppLanguage(code: 'en', name: 'English',    nativeName: 'English',      flag: '🇬🇧'),
     AppLanguage(code: 'hi', name: 'Hindi',      nativeName: 'हिन्दी',        flag: '🇮🇳'),
@@ -20,23 +24,49 @@ class LanguageProvider extends ChangeNotifier {
   ];
 
   AppLanguage _selected = supportedLanguages.first;
+  bool _isLoaded = false;
+
+  LanguageProvider() {
+    _loadSavedLanguage();
+  }
 
   AppLanguage get selected => _selected;
   String get code => _selected.code;
   String get displayName => _selected.nativeName;
+  bool get isLoaded => _isLoaded;
 
-  void setLanguage(AppLanguage lang) {
-    if (_selected.code == lang.code) return;
-    _selected = lang;
+  /// Loads the persisted language code from SharedPreferences on startup.
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCode = prefs.getString(_prefKey);
+    if (savedCode != null) {
+      final lang = supportedLanguages.firstWhere(
+        (l) => l.code == savedCode,
+        orElse: () => supportedLanguages.first,
+      );
+      _selected = lang;
+    }
+    _isLoaded = true;
     notifyListeners();
   }
 
-  void setLanguageByCode(String code) {
+  /// Sets the selected language and persists it to SharedPreferences.
+  Future<void> setLanguage(AppLanguage lang) async {
+    if (_selected.code == lang.code) return;
+    _selected = lang;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefKey, lang.code);
+  }
+
+  /// Sets the selected language by its code string.
+  Future<void> setLanguageByCode(String code) async {
     final lang = supportedLanguages.firstWhere(
       (l) => l.code == code,
       orElse: () => supportedLanguages.first,
     );
-    setLanguage(lang);
+    await setLanguage(lang);
   }
 }
 

@@ -6,21 +6,27 @@ import '../providers/language_provider.dart';
 import 'app_theme.dart';
 
 /// Shows a beautiful bottom-sheet language picker.
+/// Uses the [callingContext] to ensure the LanguageProvider is resolved
+/// from the correct widget tree ancestor.
 Future<void> showLanguagePicker(BuildContext context) {
+  final parentContext = context;
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => const _LanguagePickerSheet(),
+    builder: (_) => _LanguagePickerSheet(parentContext: parentContext),
   );
 }
 
 class _LanguagePickerSheet extends StatelessWidget {
-  const _LanguagePickerSheet();
+  final BuildContext parentContext;
+
+  const _LanguagePickerSheet({required this.parentContext});
 
   @override
   Widget build(BuildContext context) {
-    final langProvider = context.watch<LanguageProvider>();
+    // Watch from parent so we always get the correct provider scope
+    final langProvider = parentContext.watch<LanguageProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -99,7 +105,8 @@ class _LanguagePickerSheet extends StatelessWidget {
                   final isSelected = lang == langProvider.selected;
                   return GestureDetector(
                     onTap: () {
-                      context.read<LanguageProvider>().setLanguage(lang);
+                      // Use parentContext to ensure we write to the correct provider
+                      parentContext.read<LanguageProvider>().setLanguage(lang);
                       Navigator.pop(context);
                     },
                     child: AnimatedContainer(
