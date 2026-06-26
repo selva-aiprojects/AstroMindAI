@@ -27,6 +27,9 @@ All core components have been wired for a fully working demo. The app can run in
 - [x] **Chat Fallback**: When backend unavailable, uses local `_generateAIResponse()` with chart-aware hardcoded replies
 - [x] **API Client**: Full `demoLogin()` method, all endpoints wired including Render production URLs.
 - [x] **Auth Flow**: Google OAuth, Phone OTP, and Demo mode all functional
+- [x] **Language Persistence**: Language selection now persists to `SharedPreferences` and survives app restarts. Fixed bottom sheet context to resolve provider correctly.
+- [x] **Location Settings Guidance**: When location services are disabled or permission permanently denied, styled dialogs guide the user to device/app settings via `Geolocator.openLocationSettings()` / `openAppSettings()`.
+- [x] **Date/Time Picker Dark Theme**: Custom `DatePickerThemeData` and `TimePickerThemeData` with white text on deep purple backgrounds and gold accents for clear visibility.
 
 ### Infrastructure
 - [x] `docker-compose.yml` — PostgreSQL 15, Chroma, Redis 7, Backend
@@ -91,6 +94,9 @@ flutter run
 | `api_client.dart` | `demoLogin()`, `getYearlyProjection()`, and Render prod URL |
 | `auth_screen.dart` | "Demo Mode (Dev)" button |
 | `chat_screen.dart` | Local AI fallback when backend unreachable |
+| `language_provider.dart` | SharedPreferences persistence for selected language; loads on startup |
+| `language_picker.dart` | Passes parent context to bottom sheet for correct provider scope |
+| `birth_profile_onboarding.dart` | Location settings guidance dialogs + themed date/time pickers |
 
 ## API Endpoints
 | Endpoint | Method | Description |
