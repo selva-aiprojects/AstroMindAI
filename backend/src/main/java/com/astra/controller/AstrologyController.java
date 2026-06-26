@@ -301,7 +301,9 @@ public class AstrologyController {
     }
 
     @GetMapping("/current-situation")
-    public ResponseEntity<?> getCurrentSituation(@RequestParam UUID userId) {
+    public ResponseEntity<?> getCurrentSituation(
+            @RequestParam UUID userId,
+            @RequestParam(defaultValue = "en") String language) {
         try {
             BirthProfile birthProfile = birthProfileService.getBirthProfileByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Birth profile not found"));
@@ -322,19 +324,21 @@ public class AstrologyController {
                     natalChart.getPlanetaryPositions()
             );
 
-            // Prepare context with birth data and transits
+            // Prepare context with birth data, transits, and language
             Map<String, Object> context = new HashMap<>();
             context.put("birthDate", birthProfile.getBirthDate());
             context.put("birthTime", birthProfile.getBirthTime());
             context.put("chart", natalChart);
             context.put("transits", transits);
+            context.put("language", language);
 
             // Query agents
             Map<String, String> summaries = new HashMap<>();
             String[] agentsToQuery = {"career_guidance", "marriage_guidance", "finance_guidance", "health_guidance"};
             String[] keys = {"career", "marriage", "finance", "health"};
-            
-            String prompt = "Analyze my current planetary transits. Provide my current situation regarding %s. Format your response strictly as a bulleted list with three sections: 1. Current Trend, 2. Lucks & Hurdles, 3. Upcoming Changes.";
+
+            String languageInstruction = buildLanguageInstruction(language);
+            String prompt = "Analyze my current planetary transits. Provide my current situation regarding %s. Format your response strictly as a bulleted list with three sections: 1. Current Trend, 2. Lucks & Hurdles, 3. Upcoming Changes. " + languageInstruction;
 
             for (int i = 0; i < agentsToQuery.length; i++) {
                 AgentRouter.AgentRequest agentRequest = AgentRouter.AgentRequest.builder()
@@ -354,7 +358,9 @@ public class AstrologyController {
     }
 
     @GetMapping("/yearly-projection")
-    public ResponseEntity<?> getYearlyProjection(@RequestParam UUID userId) {
+    public ResponseEntity<?> getYearlyProjection(
+            @RequestParam UUID userId,
+            @RequestParam(defaultValue = "en") String language) {
         try {
             BirthProfile birthProfile = birthProfileService.getBirthProfileByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Birth profile not found"));
@@ -380,12 +386,14 @@ public class AstrologyController {
             context.put("chart", natalChart);
             context.put("dashaTimeline", dashaTimeline);
             context.put("projectionPeriod", "Next 12 Months (" + LocalDate.now() + " to " + LocalDate.now().plusYears(1) + ")");
+            context.put("language", language);
 
             Map<String, String> summaries = new HashMap<>();
             String[] agentsToQuery = {"career_guidance", "marriage_guidance", "finance_guidance", "health_guidance"};
             String[] keys = {"career", "marriage", "finance", "health"};
-            
-            String prompt = "Analyze my planetary positions and upcoming Dasha periods for the next 12 months. Provide a one-year projection regarding %s. Format your response strictly as a bulleted list with three sections: 1. Expected Events (with approximate date ranges), 2. How to Face This, 3. Specific Remedies.";
+
+            String languageInstruction = buildLanguageInstruction(language);
+            String prompt = "Analyze my planetary positions and upcoming Dasha periods for the next 12 months. Provide a one-year projection regarding %s. Format your response strictly as a bulleted list with three sections: 1. Expected Events (with approximate date ranges), 2. How to Face This, 3. Specific Remedies. " + languageInstruction;
 
             for (int i = 0; i < agentsToQuery.length; i++) {
                 AgentRouter.AgentRequest agentRequest = AgentRouter.AgentRequest.builder()
@@ -527,6 +535,29 @@ public class AstrologyController {
         }
         
         return horoscope.toString();
+    }
+
+    /**
+     * Builds a language instruction string to append to AI prompts so the LLM
+     * responds in the user's chosen language.
+     */
+    private String buildLanguageInstruction(String languageCode) {
+        return switch (languageCode) {
+            case "hi" -> "IMPORTANT: Respond entirely in Hindi (हिन्दी)।";
+            case "ta" -> "IMPORTANT: Respond entirely in Tamil (தமிழ்).";
+            case "te" -> "IMPORTANT: Respond entirely in Telugu (తెలుగు).";
+            case "mr" -> "IMPORTANT: Respond entirely in Marathi (मराठी)।";
+            case "bn" -> "IMPORTANT: Respond entirely in Bengali (বাংলা)।";
+            case "gu" -> "IMPORTANT: Respond entirely in Gujarati (ગુજરાતી)।";
+            case "kn" -> "IMPORTANT: Respond entirely in Kannada (ಕನ್ನಡ).";
+            case "ml" -> "IMPORTANT: Respond entirely in Malayalam (മലയാളം).";
+            case "pa" -> "IMPORTANT: Respond entirely in Punjabi (ਪੰਜਾਬੀ)।";
+            case "or" -> "IMPORTANT: Respond entirely in Odia (ଓଡ଼ିଆ)।";
+            case "as" -> "IMPORTANT: Respond entirely in Assamese (অসমীয়া)।";
+            case "ur" -> "IMPORTANT: Respond entirely in Urdu (اردو).";
+            case "sa" -> "IMPORTANT: Respond entirely in Sanskrit (संस्कृत)।";
+            default -> ""; // English — no extra instruction needed
+        };
     }
 
     private String calculateSign(double longitude) {

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class ApiClient {
   ApiClient({String? baseUrl})
@@ -119,10 +118,11 @@ class ApiClient {
   Future<Map<String, dynamic>> sendChatMessage({
     required String userId,
     required String query,
+    String language = 'en',
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/astrology/chat',
-      data: {'userId': userId, 'query': query},
+      data: {'userId': userId, 'query': query, 'language': language},
     );
     return response.data ?? {};
   }
@@ -172,26 +172,26 @@ class ApiClient {
     return response.data ?? {};
   }
 
-  Future<Map<String, dynamic>> getCurrentSituation(String userId) async {
+  Future<Map<String, dynamic>> getCurrentSituation(String userId, {String language = 'en'}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/astrology/current-situation',
-      queryParameters: {'userId': userId},
+      queryParameters: {'userId': userId, 'language': language},
     );
     return response.data ?? {};
   }
 
-  Future<Map<String, dynamic>> getYearlyProjection(String userId) async {
+  Future<Map<String, dynamic>> getYearlyProjection(String userId, {String language = 'en'}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/astrology/yearly-projection',
-      queryParameters: {'userId': userId},
+      queryParameters: {'userId': userId, 'language': language},
     );
     return response.data ?? {};
   }
 
-  Future<Map<String, dynamic>> getLifeSummary(String userId) async {
+  Future<Map<String, dynamic>> getLifeSummary(String userId, {String language = 'en'}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/astrology/life-summary',
-      queryParameters: {'userId': userId},
+      queryParameters: {'userId': userId, 'language': language},
     );
     return response.data ?? {};
   }

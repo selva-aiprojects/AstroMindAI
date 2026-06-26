@@ -9,6 +9,7 @@ import 'features/auth/presentation/auth_screen.dart';
 import 'features/astrology/presentation/birth_chart_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'core/providers/auth_provider.dart';
+import 'core/providers/language_provider.dart';
 import 'core/network/api_client.dart';
 import 'core/theme/app_theme.dart';
 
@@ -35,6 +36,9 @@ class AstraApp extends StatelessWidget {
             apiClient: apiClient,
             firebaseEnabled: true,
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(),
         ),
       ],
       child: MaterialApp(
